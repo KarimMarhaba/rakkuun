@@ -1,0 +1,27 @@
+# Rezepte: Mengen in Gramm pro Portion. Beispielrezepte – werden durch die
+# Gerichte aus deinem bestehenden Ernährungsplan ersetzt bzw. ergänzt.
+
+overnight_oats:
+  name: Overnight Oats mit Quark und Beeren
+  prep_minutes: 5
+  ingredients: {haferflocken: 80, magerquark: 250, heidelbeeren_tk: 100, banane: 100}
+
+haehnchen_reis_brokkoli:
+  name: Hähnchen mit Reis und Brokkoli
+  prep_minutes: 20
+  ingredients: {haehnchenbrust: 200, basmatireis: 90, brokkoli: 250, olivenoel: 10}
+
+haehnchen_reis_brokkoli_tk:
+  name: Hähnchen mit Reis und TK-Brokkoli
+  prep_minutes: 20
+  ingredients: {haehnchenbrust: 200, basmatireis: 90, brokkoli_tk: 250, olivenoel: 10}
+
+lachs_kartoffeln:
+  name: Ofenlachs mit Kartoffeln und Brokkoli
+  prep_minutes: 25
+  ingredients: {lachs_tk: 125, kartoffeln: 350, brokkoli_tk: 200, olivenoel: 5}
+
+ruehrei_brot:
+  name: Rührei mit Vollkornbrot
+  prep_minutes: 10
+  ingredients: {eier: 180, vollkornbrot: 100}
