@@ -1,0 +1,118 @@
+# Zutatenkatalog. Nährwerte pro 100 g (Richtwerte nach BLS / Herstellerangaben –
+# vor dem Produktiveinsatz gegen das konkrete MyTime-Produkt prüfen).
+#
+# package_g        Packungsgröße bei MyTime in Gramm
+# price_eur        Preis pro Packung (Schätzung, wird später aus MyTime übernommen)
+# shelf_life_days  Wie viele Tage nach Lieferung die Zutat sicher verwendbar ist
+# staple           true = lange haltbar, eignet sich zum Auffüllen auf den Mindestbestellwert
+# mytime_query     Suchbegriff bzw. später die konkrete Artikel-ID bei MyTime
+
+haferflocken:
+  name: Haferflocken, zart
+  mytime_query: Haferflocken zart
+  package_g: 500
+  price_eur: 0.99
+  shelf_life_days: 180
+  staple: true
+  per_100g: {kcal: 372, protein: 13.5, carbs: 58.7, fat: 7.0, fiber: 10.0, calcium_mg: 54, iron_mg: 4.3, magnesium_mg: 137}
+
+magerquark:
+  name: Magerquark
+  mytime_query: Magerquark 500g
+  package_g: 500
+  price_eur: 1.29
+  shelf_life_days: 14
+  per_100g: {kcal: 67, protein: 12.0, carbs: 4.0, fat: 0.3, fiber: 0.0, calcium_mg: 92, iron_mg: 0.4, magnesium_mg: 12}
+
+heidelbeeren_tk:
+  name: Heidelbeeren, tiefgekühlt
+  mytime_query: Heidelbeeren tiefgekühlt
+  package_g: 300
+  price_eur: 2.49
+  shelf_life_days: 180
+  staple: true
+  per_100g: {kcal: 50, protein: 0.6, carbs: 7.4, fat: 0.6, fiber: 4.9, calcium_mg: 10, iron_mg: 0.7, magnesium_mg: 2}
+
+banane:
+  name: Bananen
+  mytime_query: Bananen
+  package_g: 1000
+  price_eur: 1.79
+  shelf_life_days: 5
+  per_100g: {kcal: 93, protein: 1.2, carbs: 20.0, fat: 0.2, fiber: 2.0, calcium_mg: 7, iron_mg: 0.4, magnesium_mg: 30}
+
+haehnchenbrust:
+  name: Hähnchenbrustfilet, frisch
+  mytime_query: Hähnchenbrustfilet
+  package_g: 400
+  price_eur: 5.49
+  shelf_life_days: 4
+  per_100g: {kcal: 106, protein: 23.0, carbs: 0.0, fat: 1.0, fiber: 0.0, calcium_mg: 12, iron_mg: 0.6, magnesium_mg: 28}
+
+basmatireis:
+  name: Basmatireis
+  mytime_query: Basmati Reis 1kg
+  package_g: 1000
+  price_eur: 2.49
+  shelf_life_days: 365
+  staple: true
+  per_100g: {kcal: 350, protein: 7.5, carbs: 78.0, fat: 0.6, fiber: 1.4, calcium_mg: 10, iron_mg: 0.8, magnesium_mg: 25}
+
+brokkoli:
+  name: Brokkoli, frisch
+  mytime_query: Brokkoli
+  package_g: 500
+  price_eur: 1.99
+  shelf_life_days: 4
+  per_100g: {kcal: 34, protein: 3.5, carbs: 2.7, fat: 0.2, fiber: 3.0, calcium_mg: 58, iron_mg: 0.8, magnesium_mg: 18}
+
+brokkoli_tk:
+  name: Brokkoli, tiefgekühlt
+  mytime_query: Brokkoli tiefgekühlt
+  package_g: 750
+  price_eur: 2.29
+  shelf_life_days: 180
+  staple: true
+  per_100g: {kcal: 29, protein: 3.0, carbs: 2.5, fat: 0.2, fiber: 3.0, calcium_mg: 50, iron_mg: 0.7, magnesium_mg: 17}
+
+eier:
+  name: Eier, Freiland, 10 Stück
+  mytime_query: Freilandeier 10er
+  package_g: 600
+  price_eur: 3.29
+  shelf_life_days: 21
+  per_100g: {kcal: 137, protein: 12.9, carbs: 0.7, fat: 9.3, fiber: 0.0, calcium_mg: 55, iron_mg: 1.9, magnesium_mg: 12}
+
+vollkornbrot:
+  name: Vollkornbrot
+  mytime_query: Vollkornbrot
+  package_g: 500
+  price_eur: 2.29
+  shelf_life_days: 6
+  per_100g: {kcal: 220, protein: 7.0, carbs: 40.0, fat: 1.2, fiber: 8.0, calcium_mg: 50, iron_mg: 2.5, magnesium_mg: 60}
+
+lachs_tk:
+  name: Lachsfilet, tiefgekühlt
+  mytime_query: Lachsfilet tiefgekühlt
+  package_g: 250
+  price_eur: 5.99
+  shelf_life_days: 180
+  staple: true
+  per_100g: {kcal: 200, protein: 20.0, carbs: 0.0, fat: 13.6, fiber: 0.0, calcium_mg: 13, iron_mg: 0.4, magnesium_mg: 29}
+
+kartoffeln:
+  name: Kartoffeln, festkochend
+  mytime_query: Kartoffeln festkochend 2kg
+  package_g: 2000
+  price_eur: 2.99
+  shelf_life_days: 30
+  per_100g: {kcal: 72, protein: 2.0, carbs: 15.0, fat: 0.1, fiber: 2.0, calcium_mg: 6, iron_mg: 0.4, magnesium_mg: 20}
+
+olivenoel:
+  name: Olivenöl, nativ extra
+  mytime_query: Olivenöl nativ extra 500ml
+  package_g: 460
+  price_eur: 6.99
+  shelf_life_days: 365
+  staple: true
+  per_100g: {kcal: 884, protein: 0.0, carbs: 0.0, fat: 100.0, fiber: 0.0, calcium_mg: 1, iron_mg: 0.6, magnesium_mg: 0}
