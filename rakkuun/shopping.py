@@ -47,6 +47,8 @@ class ShoppingPlan:
     spoilage_risks: list[tuple[str, int]] = field(default_factory=list)
     notes: list[str] = field(default_factory=list)
     pantry_after: dict[str, float] = field(default_factory=dict)
+    # Zutat-ID -> Gramm, die nicht bestellt, sondern später vor Ort gekauft werden
+    buy_locally: dict[str, float] = field(default_factory=dict)
 
 
 def daily_demand(catalog: Catalog, week: Week) -> dict[str, dict[int, float]]:
@@ -156,12 +158,23 @@ def build_shopping_plan(catalog: Catalog, week: Week) -> ShoppingPlan:
             f"Mindestbestellwert von {minimum:.2f} € – deshalb eine Lieferung. Die unten markierten "
             "Zutaten zuerst verbrauchen oder rechtzeitig einfrieren.")
 
+    buy_locally: dict[str, float] = defaultdict(float)
+    if ordering.get("verderbliches_vor_ort_kaufen") and one_risks:
+        for ingredient_id, day in one_risks:
+            grams = demand[ingredient_id][day]
+            one_grams[0][ingredient_id] -= grams
+            buy_locally[ingredient_id] += grams
+        names = ", ".join(catalog.ingredients[i].name for i in sorted(buy_locally))
+        notes.append(f"Nicht bestellt, weil bis zum Verbrauch nicht mehr frisch: {names} – "
+                     "bei Bedarf vor Ort kaufen.")
+        one_risks = []
+
     delivery = _build_delivery(catalog, 0, one_grams[0])
     if delivery.total_eur < minimum:
         before = delivery.total_eur
         _fill_to_minimum(catalog, week, delivery, minimum)
         notes.append(f"Warenkorb ({before:.2f} €) mit Vorrat für die nächste Woche auf den "
                      f"Mindestbestellwert von {minimum:.2f} € aufgefüllt.")
-    plan = ShoppingPlan([delivery], one_risks, notes)
+    plan = ShoppingPlan([delivery], one_risks, notes, buy_locally={i: round(g) for i, g in buy_locally.items()})
     plan.pantry_after = _pantry_after(catalog, week, [delivery])
     return plan

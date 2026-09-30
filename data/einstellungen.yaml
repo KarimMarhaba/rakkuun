@@ -1,19 +1,20 @@
 # Wochenrhythmus und Bestellung
 
-wochentage:                    # training = volle Portionen, leicht = leichte Tage/Ruhetage
+wochentage:                    # training = volle Portionen, leicht = kleinere Carb-Portionen
   Mo: training
   Di: training
   Mi: training
-  Do: leicht
+  Do: training
   Fr: training
   Sa: training
-  So: leicht
+  So: training
 
-spieltage: [Di, Sa]            # Pickup/Spiel – ANNAHME, bitte bestätigen
+spieltage: []                  # aktuell kein Basketball
 
 bestellung:
   liefertag: Mo                # Tag 0 des Wochenplans
   mindestbestellwert_eur: 70.0 # MyTime
-  max_lieferungen_pro_woche: 2
+  max_lieferungen_pro_woche: 1 # keine Extra-Bestellung für Frisches
   zweite_lieferung_nach_tagen: 3
+  verderbliches_vor_ort_kaufen: true  # was bis zum Verbrauch nicht frisch bleibt, kommt auf die "Vor Ort kaufen"-Liste
   bestaetigung_erforderlich: true

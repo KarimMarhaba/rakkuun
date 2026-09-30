@@ -4,15 +4,15 @@
 
 mahlzeiten: [oatmeal, nudeln_tomate_huelsen, reis_bowl, joghurt_snack]
 
-# Fleisch zur Bowl: Anzahl Tage pro Woche. Gyros bevorzugt an Spieltagen (Salz ist dort ein Vorteil).
+# Fleisch zur Bowl: Anzahl Tage pro Woche. Jeden Tag gleich -> nur eine Sorte mit 7 Tagen.
+# (Gyros max. 4×/Woche wegen Salz – deshalb täglich Hähnchenbrust natur.)
 fleisch:
-  fleisch_gyros: 4
-  fleisch_brust: 3
+  fleisch_brust: 7
 
-# Hülsenfrucht im Mittagessen wechselt wöchentlich
+# Hülsenfrucht im Mittagessen wechselt von Woche zu Woche (innerhalb der Woche gleich)
 huelsenfrucht_rotation: [kichererbsen, kidneybohnen, weisse_bohnen, linsen]
 
-# Zusätzlich an Spieltagen (Pickup/Spiel)
+# Zusätzlich an Spieltagen (nur relevant, wenn in einstellungen.yaml spieltage gesetzt sind)
 spieltag_extras: [rote_bete_shot]
 
 # Zusätzlich 1× pro Woche (leer lassen, solange die Omega-3-Kapseln EPA/DHA enthalten)

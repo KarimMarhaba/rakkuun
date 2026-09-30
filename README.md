@@ -23,12 +23,15 @@ Gewicht + Vorrat ───────────┘                  (❌ = St
     Agent eine andere Lösung finden oder dir den Konflikt erklären.
   - Änderungen an `data/regeln.yaml` gehen nur mit deiner ausdrücklichen Bestätigung.
   - GitHub Actions prüft jeden Push noch einmal.
-- **Wochenplan**: Jede Woche wird er aus der Vorlage erzeugt. Die Hülsenfrucht wechselt
-  wöchentlich, Gyros kommt bevorzugt an Spieltage, Rote-Bete-Saft an Spieltage, und leichte
-  Tage bekommen kleinere Portionen.
-- **Einkauf**: Der Vorrat wird abgezogen, alles auf Packungen gerundet und nach Haltbarkeit
-  auf 1–2 Lieferungen verteilt. Liegt ein Warenkorb unter 70 €, wird mit lange haltbaren
+- **Wochenplan**: Ein Tagesplan, der jeden Wochentag gleich läuft. Abwechslung gibt es nur
+  von Woche zu Woche (z. B. wechselt die Hülsenfrucht). Spieltage und leichte Tage sind
+  vorbereitet, aber aktuell aus.
+- **Einkauf**: Eine Bestellung pro Woche. Der Vorrat wird abgezogen und alles auf Packungen
+  gerundet. Was bis zum Verbrauch nicht frisch bleibt (Bananen fürs Wochenende), kommt auf
+  eine „Vor Ort kaufen“-Liste. Liegt der Warenkorb unter 70 €, wird mit lange haltbaren
   Artikeln aus dem Plan aufgefüllt, und der Rest wird als Vorrat verbucht.
+- **Plan-Review**: In einer eigenen Claude-Session „Lass uns den Ernährungsplan überarbeiten“
+  sagen. Der Ablauf steht in `CLAUDE.md`, die Original-Pläne liegen in `docs/plaene/`.
 
 ## Stand
 
