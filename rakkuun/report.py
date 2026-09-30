@@ -11,11 +11,28 @@ from .shopping import ShoppingPlan
 COLUMNS = ["kcal", "protein", "carbs", "fat", "fiber", "calcium_mg", "iron_mg", "magnesium_mg", "zinc_mg"]
 
 
+def merge_daily(findings: list[Finding], days: int = 7) -> list[Finding]:
+    """Gleicher Befund an allen Tagen -> einmal als 'Täglich'."""
+    count: dict[tuple, int] = {}
+    for f in findings:
+        count[(f.stufe, f.text, f.grund)] = count.get((f.stufe, f.text, f.grund), 0) + 1
+    merged, seen = [], set()
+    for f in findings:
+        key = (f.stufe, f.text, f.grund)
+        if count[key] >= days:
+            if key not in seen:
+                merged.append(Finding(f.stufe, "Täglich", f.text, f.grund))
+                seen.add(key)
+        else:
+            merged.append(f)
+    return merged
+
+
 def render_findings(findings: list[Finding]) -> list[str]:
     if not findings:
         return ["✅ Alle Grundregeln eingehalten."]
     out = []
-    for f in sorted(findings, key=lambda f: (not f.is_error, f.wo)):
+    for f in sorted(merge_daily(findings), key=lambda f: (not f.is_error, f.wo)):
         icon = "❌" if f.is_error else "💡"
         out.append(f"- {icon} **{f.wo}:** {f.text}" + (f" – _{f.grund}_" if f.grund else ""))
     return out
@@ -55,6 +72,10 @@ def render(catalog: Catalog, week: Week, findings: list[Finding], shopping: Shop
                        f"{line.total_eur:.2f} € | {line.kaufregel} |")
         for line in delivery.filler:
             out.append(f"| {line.name} _(Vorrat)_ | – | {line.packages} | {line.total_eur:.2f} € | {line.kaufregel} |")
+    if shopping.buy_locally:
+        out += ["", "### 🛒 Vor Ort kaufen (bei Bedarf)"]
+        for ingredient_id, grams in shopping.buy_locally.items():
+            out.append(f"- {catalog.ingredients[ingredient_id].name}: ca. {grams} g für die letzten Tage der Woche")
     if shopping.spoilage_risks:
         out += ["", "### ⚠️ Haltbarkeit"]
         for ingredient_id, day in sorted(shopping.spoilage_risks, key=lambda r: (r[1], r[0])):

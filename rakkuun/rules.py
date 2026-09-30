@@ -65,7 +65,8 @@ def _bounds(rule: dict, weight: float) -> tuple[float | None, float | None]:
 
 def _fmt(nutrient: str, value: float) -> str:
     label, unit = LABELS.get(nutrient, (nutrient, ""))
-    return f"{label} {value:.0f} {unit}".strip()
+    digits = 1 if unit == "g" else 0
+    return f"{label} {value:.{digits}f} {unit}".strip()
 
 
 def validate(catalog: Catalog, week: Week) -> list[Finding]:
@@ -136,6 +137,14 @@ def validate(catalog: Catalog, week: Week) -> list[Finding]:
             findings.append(Finding(rule["stufe"], "Woche",
                                     f"Gruppe '{tag}': {amount:.0f} g > {rule['max_pro_woche_g']} g",
                                     rule.get("grund", "")))
+
+    if catalog.preferences.get("jeden_tag_gleich"):
+        first = week.days[0]
+        for day in week.days[1:]:
+            if day_grams(catalog, day) != day_grams(catalog, first):
+                findings.append(Finding("fehler", day.weekday,
+                                        f"Weicht von {first.weekday} ab – jeder Tag soll gleich sein",
+                                        "Deine Vorlieben: ein Tagesplan für die ganze Woche."))
 
     trend = weight_trend_kg_per_month(catalog)
     if trend is not None:

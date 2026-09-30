@@ -53,16 +53,39 @@ def test_oatmeal_matches_plan_v6():
     assert values["protein"] == pytest.approx(54, rel=0.05)
 
 
-def test_light_days_use_smaller_portions():
+def varied_week(data):
+    """Alte Variante mit Basketball: Spieltage, leichte Tage, Fleisch-Rotation."""
+    edit(data, "einstellungen.yaml", spieltage=["Di", "Sa"],
+         wochentage={"Mo": "training", "Di": "training", "Mi": "training", "Do": "leicht",
+                     "Fr": "training", "Sa": "training", "So": "leicht"})
+    edit(data, "wochenvorlage.yaml", fleisch={"fleisch_gyros": 4, "fleisch_brust": 3})
+    edit(data, "vorlieben.yaml", jeden_tag_gleich=False)
+    return load_catalog(data)
+
+
+def test_default_plan_is_identical_every_day():
     catalog = load_catalog()
+    week = generate_week(catalog, 0)
+    first = day_grams(catalog, week.days[0])
+    assert all(day_grams(catalog, d) == first for d in week.days)
+
+
+def test_varying_days_break_same_every_day_preference(data):
+    edit(data, "wochenvorlage.yaml", fleisch={"fleisch_gyros": 4, "fleisch_brust": 3})
+    assert any("jeder Tag soll gleich sein" in f.text for f in errors(load_catalog(data)))
+
+
+def test_light_days_use_smaller_portions(data):
+    catalog = varied_week(data)
+    assert errors(catalog) == []
     days = {d.weekday: d for d in generate_week(catalog, 0).days}
     assert day_grams(catalog, days["Do"])["nudeln"] == 150
     assert day_grams(catalog, days["Mo"])["nudeln"] == 200
     assert day_nutrients(catalog, days["Do"])["kcal"] < day_nutrients(catalog, days["Mo"])["kcal"]
 
 
-def test_meat_rotation_puts_gyros_on_game_days_and_limits_it():
-    catalog = load_catalog()
+def test_meat_rotation_puts_gyros_on_game_days_and_limits_it(data):
+    catalog = varied_week(data)
     week = generate_week(catalog, 0)
     gyros_days = [d.weekday for d in week.days if "fleisch_gyros" in d.meals]
     assert len(gyros_days) == 4
@@ -132,6 +155,17 @@ def test_unknown_references_are_rejected(data):
 
 # --- Einkauf -----------------------------------------------------------------
 
+def test_single_delivery_and_late_bananas_bought_locally():
+    catalog = load_catalog()
+    shopping = build_shopping_plan(catalog, generate_week(catalog, 0))
+    assert len(shopping.deliveries) == 1
+    assert not shopping.spoilage_risks
+    # Liefertag Mo, Bananen halten 5 Tage -> Sa + So vor Ort
+    assert shopping.buy_locally == {"banane": 240}
+    line = next(l for l in shopping.deliveries[0].lines if l.ingredient_id == "banane")
+    assert line.grams_needed == 600
+
+
 def test_every_delivery_meets_minimum_order():
     catalog = load_catalog()
     for delivery in build_shopping_plan(catalog, generate_week(catalog, 0)).deliveries:
@@ -144,8 +178,8 @@ def test_packages_rounded_up_and_pantry_carried_over():
     lines = {l.ingredient_id: l for d in shopping.deliveries for l in d.lines}
     assert lines["griech_joghurt_10"].grams_needed == 1400
     assert lines["griech_joghurt_10"].packages == 3
-    # 1 kg Reis gekauft, 650 g verbraucht -> Rest landet im Vorrat
-    assert shopping.pantry_after["basmatireis"] == 350
+    # 1 kg Reis gekauft, 700 g verbraucht -> Rest landet im Vorrat
+    assert shopping.pantry_after["basmatireis"] == 300
     # Frisches (Joghurt, 21 Tage) wird nicht als Vorrat fortgeschrieben
     assert "griech_joghurt_10" not in shopping.pantry_after
 

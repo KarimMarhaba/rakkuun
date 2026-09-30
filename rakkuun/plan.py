@@ -37,11 +37,17 @@ def generate_week(catalog: Catalog, iso_week: int) -> Week:
     if legume and legume != "kichererbsen":
         swaps.setdefault("kichererbsen", legume)
 
-    # Fleisch verteilen: die Sorte mit der ersten Nennung zuerst auf Spieltage, dann Trainingstage
+    # Fleisch verteilen: salzig Mariniertes zuerst auf Spieltage (Natriumverlust), dann Trainingstage
     meat_by_day: dict[str, str] = {}
     priority = sorted(weekdays, key=lambda d: (d not in game_days, settings["wochentage"][d] != "training"))
     remaining = [d for d in priority]
-    for recipe_id, count in (template.get("fleisch") or {}).items():
+
+    def salty(recipe_id: str) -> bool:
+        return any("mariniert_salzig" in catalog.ingredients[i].tags
+                   for i in catalog.recipes[recipe_id].ingredients)
+
+    meats = sorted((template.get("fleisch") or {}).items(), key=lambda item: not salty(item[0]))
+    for recipe_id, count in meats:
         for weekday in remaining[:count]:
             meat_by_day[weekday] = recipe_id
         remaining = remaining[count:]
