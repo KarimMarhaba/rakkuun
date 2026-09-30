@@ -1,9 +1,0 @@
-# Beispielwoche. Tag 0 = Liefertag. Jede Mahlzeit: Rezept-ID und Portionen.
-days:
-  - [overnight_oats, haehnchen_reis_brokkoli, ruehrei_brot]
-  - [overnight_oats, haehnchen_reis_brokkoli, ruehrei_brot]
-  - [overnight_oats, lachs_kartoffeln, ruehrei_brot]
-  - [overnight_oats, haehnchen_reis_brokkoli, ruehrei_brot]
-  - [overnight_oats, lachs_kartoffeln, ruehrei_brot]
-  - [overnight_oats, haehnchen_reis_brokkoli, ruehrei_brot]
-  - [overnight_oats, lachs_kartoffeln, ruehrei_brot]
