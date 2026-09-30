@@ -1,0 +1,19 @@
+# Wochenrhythmus und Bestellung
+
+wochentage:                    # training = volle Portionen, leicht = leichte Tage/Ruhetage
+  Mo: training
+  Di: training
+  Mi: training
+  Do: leicht
+  Fr: training
+  Sa: training
+  So: leicht
+
+spieltage: [Di, Sa]            # Pickup/Spiel – ANNAHME, bitte bestätigen
+
+bestellung:
+  liefertag: Mo                # Tag 0 des Wochenplans
+  mindestbestellwert_eur: 70.0 # MyTime
+  max_lieferungen_pro_woche: 2
+  zweite_lieferung_nach_tagen: 3
+  bestaetigung_erforderlich: true

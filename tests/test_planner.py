@@ -1,3 +1,7 @@
+import json
+import shutil
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -5,74 +9,198 @@ import yaml
 
 from rakkuun.data import DATA_DIR, load_catalog
 from rakkuun.nutrition import day_nutrients
+from rakkuun.plan import day_grams, generate_week
+from rakkuun.rules import validate, weight_trend_kg_per_month
 from rakkuun.shopping import build_shopping_plan
 
-PLAN = DATA_DIR / "plans" / "beispiel-woche.yaml"
+ROOT = Path(__file__).resolve().parent.parent
 
 
-def _catalog_with(tmp_path: Path, plan_days, **ordering):
-    """Kopiert die echten Daten und überschreibt Plan und Bestellregeln."""
-    for name in ("ingredients.yaml", "recipes.yaml"):
-        (tmp_path / name).write_text((DATA_DIR / name).read_text(encoding="utf-8"), encoding="utf-8")
-    profile = yaml.safe_load((DATA_DIR / "profile.yaml").read_text(encoding="utf-8"))
-    profile["ordering"].update(ordering)
-    (tmp_path / "profile.yaml").write_text(yaml.safe_dump(profile), encoding="utf-8")
-    plan = tmp_path / "plan.yaml"
-    plan.write_text(yaml.safe_dump({"days": plan_days}), encoding="utf-8")
-    return load_catalog(plan, tmp_path)
+@pytest.fixture
+def data(tmp_path):
+    """Kopie der echten Daten, die ein Test gefahrlos verändern kann."""
+    target = tmp_path / "data"
+    shutil.copytree(DATA_DIR, target)
+    return target
 
 
-def test_nutrients_scale_with_grams():
-    catalog = load_catalog(PLAN)
-    totals = day_nutrients(catalog, catalog.plan[0][:1])  # Overnight Oats
-    # 80 g Hafer + 250 g Quark + 100 g Beeren + 100 g Banane
-    assert totals["protein"] == pytest.approx(0.8 * 13.5 + 2.5 * 12.0 + 0.6 + 1.2)
+def edit(data: Path, name: str, **changes):
+    path = data / name
+    content = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    content.update(changes)
+    path.write_text(yaml.safe_dump(content, allow_unicode=True), encoding="utf-8")
 
 
-def test_packages_are_rounded_up():
-    catalog = load_catalog(PLAN)
-    lines = {l.ingredient_id: l for d in build_shopping_plan(catalog).deliveries for l in d.lines}
-    assert lines["magerquark"].grams_needed == 1750
-    assert lines["magerquark"].packages == 4
+def errors(catalog, kw=0):
+    return [f for f in validate(catalog, generate_week(catalog, kw)) if f.is_error]
 
+
+# --- Der echte Plan ----------------------------------------------------------
+
+@pytest.mark.parametrize("kw", range(4))
+def test_real_plan_meets_all_ground_rules(kw):
+    catalog = load_catalog()
+    assert errors(catalog, kw) == []
+
+
+def test_oatmeal_matches_plan_v6():
+    catalog = load_catalog()
+    day = generate_week(catalog, 0).days[0]
+    from rakkuun.nutrition import nutrients
+    from rakkuun.plan import meal_grams
+    values = nutrients(catalog, meal_grams(catalog, "oatmeal", day))
+    assert values["kcal"] == pytest.approx(960, rel=0.05)
+    assert values["protein"] == pytest.approx(54, rel=0.05)
+
+
+def test_light_days_use_smaller_portions():
+    catalog = load_catalog()
+    days = {d.weekday: d for d in generate_week(catalog, 0).days}
+    assert day_grams(catalog, days["Do"])["nudeln"] == 150
+    assert day_grams(catalog, days["Mo"])["nudeln"] == 200
+    assert day_nutrients(catalog, days["Do"])["kcal"] < day_nutrients(catalog, days["Mo"])["kcal"]
+
+
+def test_meat_rotation_puts_gyros_on_game_days_and_limits_it():
+    catalog = load_catalog()
+    week = generate_week(catalog, 0)
+    gyros_days = [d.weekday for d in week.days if "fleisch_gyros" in d.meals]
+    assert len(gyros_days) == 4
+    assert {"Di", "Sa"} <= set(gyros_days)
+    assert all("rote_bete_shot" in d.meals for d in week.days if d.game_day)
+
+
+def test_legume_rotates_weekly():
+    catalog = load_catalog()
+    legumes = {generate_week(catalog, kw).legume for kw in range(4)}
+    assert legumes == {"kichererbsen", "kidneybohnen", "weisse_bohnen", "linsen"}
+    week = generate_week(catalog, 1)
+    assert "linsen" in day_grams(catalog, week.days[0]) or "kidneybohnen" in day_grams(catalog, week.days[0])
+    assert "kichererbsen" not in day_grams(catalog, week.days[0])
+
+
+# --- Vorlieben dürfen Grundregeln nicht aushebeln ---------------------------
+
+def test_disliked_ingredient_in_plan_is_an_error(data):
+    edit(data, "vorlieben.yaml", abneigungen=["tk_brokkoli"])
+    found = errors(load_catalog(data))
+    assert any("Abneigungsliste" in f.text for f in found)
+
+
+def test_valid_swap_satisfies_preference_and_rules(data):
+    edit(data, "vorlieben.yaml", abneigungen=["tk_brokkoli"], tausch={"tk_brokkoli": "tk_spinat"})
+    catalog = load_catalog(data)
+    assert errors(catalog) == []
+    assert "tk_brokkoli" not in day_grams(catalog, generate_week(catalog, 0).days[0])
+
+
+def test_dropping_berries_breaks_vitamin_c_rule(data):
+    """'Ich mag keine Beeren' darf nicht still Vitamin C streichen."""
+    template = yaml.safe_load((data / "wochenvorlage.yaml").read_text(encoding="utf-8"))
+    template["mahlzeiten"] = ["oatmeal", "nudeln_tomate_huelsen", "reis_bowl", "skyr_snack"]
+    recipes = yaml.safe_load((data / "recipes.yaml").read_text(encoding="utf-8"))
+    recipes["skyr_snack"]["ingredients"].pop("tk_beeren")
+    (data / "recipes.yaml").write_text(yaml.safe_dump(recipes, allow_unicode=True), encoding="utf-8")
+    (data / "wochenvorlage.yaml").write_text(yaml.safe_dump(template, allow_unicode=True), encoding="utf-8")
+    assert any("rohes_obst" in f.text for f in errors(load_catalog(data)))
+
+
+def test_too_much_gyros_breaks_salt_rule(data):
+    edit(data, "wochenvorlage.yaml", fleisch={"fleisch_gyros": 7})
+    assert any("mariniert_salzig" in f.text for f in errors(load_catalog(data)))
+
+
+def test_protein_minimum_scales_with_logged_weight(data):
+    edit(data, "gewicht.yaml", **{"2026-09-01": 90.0})
+    assert any(f.text.startswith("Protein") for f in errors(load_catalog(data)))
+
+
+def test_weight_trend(data):
+    edit(data, "gewicht.yaml", **{"2026-09-01": 65.0, "2026-09-08": 65.3,
+                                  "2026-09-15": 65.6, "2026-09-22": 65.9, "2026-09-29": 66.2})
+    catalog = load_catalog(data)
+    assert weight_trend_kg_per_month(catalog) == pytest.approx(1.3, abs=0.05)
+    hints = [f for f in validate(catalog, generate_week(catalog, 0)) if f.wo == "Gewicht"]
+    assert hints and "zu groß" in hints[0].text
+
+
+def test_unknown_references_are_rejected(data):
+    edit(data, "vorlieben.yaml", abneigungen=["gibt_es_nicht"])
+    with pytest.raises(ValueError, match="Unbekannte Zutat"):
+        load_catalog(data)
+
+
+# --- Einkauf -----------------------------------------------------------------
 
 def test_every_delivery_meets_minimum_order():
-    catalog = load_catalog(PLAN)
-    for delivery in build_shopping_plan(catalog).deliveries:
-        assert delivery.total_eur >= catalog.profile.min_order_eur
+    catalog = load_catalog()
+    for delivery in build_shopping_plan(catalog, generate_week(catalog, 0)).deliveries:
+        assert delivery.total_eur >= catalog.ordering["mindestbestellwert_eur"]
 
 
-def test_small_order_is_filled_with_staples(tmp_path):
-    catalog = _catalog_with(tmp_path, [["overnight_oats"]])
-    plan = build_shopping_plan(catalog)
-    (delivery,) = plan.deliveries
+def test_packages_rounded_up_and_pantry_carried_over():
+    catalog = load_catalog()
+    shopping = build_shopping_plan(catalog, generate_week(catalog, 0))
+    lines = {l.ingredient_id: l for d in shopping.deliveries for l in d.lines}
+    assert lines["griech_joghurt_10"].grams_needed == 1400
+    assert lines["griech_joghurt_10"].packages == 3
+    # 1 kg Reis gekauft, 650 g verbraucht -> Rest landet im Vorrat
+    assert shopping.pantry_after["basmatireis"] == 350
+    # Frisches (Joghurt, 21 Tage) wird nicht als Vorrat fortgeschrieben
+    assert "griech_joghurt_10" not in shopping.pantry_after
+
+
+def test_pantry_reduces_order(data):
+    edit(data, "vorrat.yaml", basmatireis=1000, olivenoel=460)
+    catalog = load_catalog(data)
+    lines = {l.ingredient_id for d in build_shopping_plan(catalog, generate_week(catalog, 0)).deliveries
+             for l in d.lines}
+    assert "basmatireis" not in lines and "olivenoel" not in lines
+
+
+def test_small_order_filled_with_plan_staples(data):
+    stock = {i: 5000 for i in yaml.safe_load((data / "ingredients.yaml").read_text(encoding="utf-8"))}
+    stock.pop("banane")
+    edit(data, "vorrat.yaml", **stock)
+    catalog = load_catalog(data)
+    (delivery,) = build_shopping_plan(catalog, generate_week(catalog, 0)).deliveries
     assert delivery.total_eur >= 70
-    assert delivery.filler
-    assert all(catalog.ingredients[l.ingredient_id].staple for l in delivery.filler)
+    assert delivery.filler and all(catalog.ingredients[l.ingredient_id].staple for l in delivery.filler)
 
 
-def test_two_deliveries_when_both_reach_minimum(tmp_path):
-    heavy_day = ["haehnchen_reis_brokkoli"] * 4
-    catalog = _catalog_with(tmp_path, [heavy_day] * 7, min_order_eur=40)
-    plan = build_shopping_plan(catalog)
-    assert [d.day for d in plan.deliveries] == [0, 3]
-    assert not plan.spoilage_risks
-    # Frisches Hähnchen für Tag 3+ kommt mit der zweiten Lieferung
-    second = {l.ingredient_id: l for l in plan.deliveries[1].lines}
-    assert second["haehnchenbrust"].grams_needed == 4 * 800
-    # Lange Haltbares kommt komplett mit der ersten Lieferung
-    first = {l.ingredient_id: l for l in plan.deliveries[0].lines}
-    assert first["basmatireis"].grams_needed == 7 * 4 * 90
-    assert "basmatireis" not in second
+def test_two_deliveries_when_both_reach_minimum(data):
+    edit(data, "einstellungen.yaml", bestellung={
+        "liefertag": "Mo", "mindestbestellwert_eur": 5, "max_lieferungen_pro_woche": 2,
+        "zweite_lieferung_nach_tagen": 3, "bestaetigung_erforderlich": True})
+    catalog = load_catalog(data)
+    shopping = build_shopping_plan(catalog, generate_week(catalog, 0))
+    assert [d.day for d in shopping.deliveries] == [0, 3]
+    assert not shopping.spoilage_risks
+    second = {l.ingredient_id for l in shopping.deliveries[1].lines}
+    assert "banane" in second and "basmatireis" not in second
 
 
-def test_single_delivery_flags_spoilage_when_second_too_small():
-    catalog = load_catalog(PLAN)
-    plan = build_shopping_plan(catalog)
-    assert len(plan.deliveries) == 1
-    assert ("haehnchenbrust", 5) in plan.spoilage_risks
+# --- Hooks -------------------------------------------------------------------
+
+def run_hook(script, event):
+    return subprocess.run([sys.executable, str(ROOT / "scripts" / "hooks" / script)],
+                          input=json.dumps(event), capture_output=True, text=True)
 
 
-def test_unknown_recipe_in_plan_is_rejected(tmp_path):
-    with pytest.raises(ValueError, match="Unbekanntes Rezept"):
-        _catalog_with(tmp_path, [["gibt_es_nicht"]])
+@pytest.mark.parametrize("event", [
+    {"tool_name": "Edit", "tool_input": {"file_path": "/repo/data/regeln.yaml"}},
+    {"tool_name": "Write", "tool_input": {"file_path": "/repo/data/regeln.yaml"}},
+    {"tool_name": "Bash", "tool_input": {"command": "sed -i 's/3100/2000/' data/regeln.yaml"}},
+    {"tool_name": "Bash", "tool_input": {"command": "echo x > data/regeln.yaml"}},
+])
+def test_rule_edits_require_confirmation(event):
+    out = json.loads(run_hook("regeln_schuetzen.py", event).stdout)
+    assert out["hookSpecificOutput"]["permissionDecision"] == "ask"
+
+
+@pytest.mark.parametrize("event", [
+    {"tool_name": "Edit", "tool_input": {"file_path": "/repo/data/vorlieben.yaml"}},
+    {"tool_name": "Bash", "tool_input": {"command": "cat data/regeln.yaml"}},
+])
+def test_other_edits_pass_without_prompt(event):
+    assert run_hook("regeln_schuetzen.py", event).stdout.strip() == ""
