@@ -216,25 +216,60 @@ def test_two_deliveries_when_both_reach_minimum(data):
 
 # --- Hooks -------------------------------------------------------------------
 
-def run_hook(script, event):
-    return subprocess.run([sys.executable, str(ROOT / "scripts" / "hooks" / script)],
+def run_hook(script, event, root=ROOT):
+    return subprocess.run([sys.executable, str(root / "scripts" / "hooks" / script)],
                           input=json.dumps(event), capture_output=True, text=True)
 
 
-@pytest.mark.parametrize("event", [
-    {"tool_name": "Edit", "tool_input": {"file_path": "/repo/data/regeln.yaml"}},
-    {"tool_name": "Write", "tool_input": {"file_path": "/repo/data/regeln.yaml"}},
-    {"tool_name": "Bash", "tool_input": {"command": "sed -i 's/3100/2000/' data/regeln.yaml"}},
-    {"tool_name": "Bash", "tool_input": {"command": "echo x > data/regeln.yaml"}},
-])
-def test_rule_edits_require_confirmation(event):
-    out = json.loads(run_hook("regeln_schuetzen.py", event).stdout)
+@pytest.fixture
+def repo(tmp_path):
+    """Minimale Repo-Kopie, damit Hook-Tests die echten Regeln nicht anfassen."""
+    shutil.copytree(ROOT / "scripts", tmp_path / "scripts")
+    (tmp_path / "data").mkdir()
+    (tmp_path / ".claude").mkdir()
+    shutil.copy(DATA_DIR / "regeln.yaml", tmp_path / "data" / "regeln.yaml")
+    return tmp_path
+
+
+@pytest.mark.parametrize("tool", ["Edit", "Write"])
+def test_rule_edits_require_confirmation(repo, tool):
+    event = {"hook_event_name": "PreToolUse", "tool_name": tool,
+             "tool_input": {"file_path": str(repo / "data" / "regeln.yaml")}}
+    out = json.loads(run_hook("regeln_schuetzen.py", event, repo).stdout)
     assert out["hookSpecificOutput"]["permissionDecision"] == "ask"
 
 
-@pytest.mark.parametrize("event", [
-    {"tool_name": "Edit", "tool_input": {"file_path": "/repo/data/vorlieben.yaml"}},
-    {"tool_name": "Bash", "tool_input": {"command": "cat data/regeln.yaml"}},
-])
-def test_other_edits_pass_without_prompt(event):
-    assert run_hook("regeln_schuetzen.py", event).stdout.strip() == ""
+def test_other_edits_pass_without_prompt(repo):
+    event = {"hook_event_name": "PreToolUse", "tool_name": "Edit",
+             "tool_input": {"file_path": str(repo / "data" / "vorlieben.yaml")}}
+    assert run_hook("regeln_schuetzen.py", event, repo).stdout.strip() == ""
+
+
+def test_harmless_bash_does_not_prompt_or_block(repo):
+    event = {"hook_event_name": "PostToolUse", "tool_name": "Bash",
+             "tool_input": {"command": 'git commit -m "Grundregeln in data/regeln.yaml"'}}
+    result = run_hook("regeln_schuetzen.py", event, repo)
+    assert result.returncode == 0 and result.stdout.strip() == ""
+
+
+def test_bash_change_to_rules_is_reverted(repo):
+    rules = repo / "data" / "regeln.yaml"
+    original = rules.read_text(encoding="utf-8")
+    event = {"hook_event_name": "PostToolUse", "tool_name": "Bash", "tool_input": {"command": "true"}}
+    run_hook("regeln_schuetzen.py", event, repo)          # Freigabe-Stand anlegen
+    rules.write_text(original.replace("min: 3100", "min: 2000"), encoding="utf-8")
+    result = run_hook("regeln_schuetzen.py", event, repo)
+    assert result.returncode == 2
+    assert rules.read_text(encoding="utf-8") == original
+
+
+def test_approved_edit_becomes_new_baseline(repo):
+    rules = repo / "data" / "regeln.yaml"
+    bash = {"hook_event_name": "PostToolUse", "tool_name": "Bash", "tool_input": {"command": "true"}}
+    run_hook("regeln_schuetzen.py", bash, repo)
+    changed = rules.read_text(encoding="utf-8").replace("min: 3100", "min: 3000")
+    rules.write_text(changed, encoding="utf-8")            # Edit nach deiner Erlaubnis
+    edit = {"hook_event_name": "PostToolUse", "tool_name": "Edit", "tool_input": {"file_path": str(rules)}}
+    assert run_hook("regeln_schuetzen.py", edit, repo).returncode == 0
+    assert run_hook("regeln_schuetzen.py", bash, repo).returncode == 0
+    assert rules.read_text(encoding="utf-8") == changed
