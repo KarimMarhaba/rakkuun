@@ -346,3 +346,49 @@ def test_parse_mytime_search_result():
     assert products[0].price_eur == 1.69 and products[0].grams == 500
     assert products[1].step == 2
     assert parse_weight("4 x 125 g") == 500 and parse_weight("1 l") == 1000 and parse_weight("10 St.") is None
+
+
+# --- Warenkorb (ohne echten Shop) ---------------------------------------------
+
+class FakeShop:
+    """Steht im Test für den Browser: merkt sich den Warenkorb im Speicher."""
+    def __init__(self, cart):
+        self.items = dict(cart)
+        self.calls = []
+
+    def __call__(self, headless=True):
+        return self
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        pass
+
+    def login(self):
+        pass
+
+    def cart(self):
+        from rakkuun.warenkorb import CartItem
+        return [CartItem(sku, sku, qty) for sku, qty in self.items.items()], {"Einkaufswert": "x"}
+
+    def add(self, sku, query, quantity):
+        self.calls.append((sku, quantity))
+        self.items[sku] = self.items.get(sku, 0) + quantity
+
+
+def test_fill_cart_adds_only_what_is_missing(monkeypatch):
+    import rakkuun.warenkorb as wk
+    catalog = load_catalog()
+    shopping = build_shopping_plan(catalog, generate_week(catalog, 0))
+    skyr = catalog.ingredients["skyr"].mytime["sku"]
+    fake = FakeShop({skyr: 2, "999": 1})          # 2 Skyr liegen schon drin, plus ein fremder Artikel
+    monkeypatch.setattr(wk, "MyTimeShop", fake)
+    result = wk.fill_cart(catalog, shopping)
+    assert (skyr, 3) in fake.calls               # nur die fehlenden 3 von 5
+    assert fake.items["999"] == 1                # fremde Artikel bleiben unberührt
+    assert not result.failed
+    # zweiter Lauf legt nichts mehr hinein
+    fake.calls.clear()
+    wk.fill_cart(catalog, shopping)
+    assert fake.calls == []

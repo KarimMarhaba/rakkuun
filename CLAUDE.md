@@ -107,5 +107,6 @@ python -m rakkuun pruefen [--alle]  # alle Rotationswochen gegen Grundregeln (Ex
 python -m rakkuun gewicht 65.4      # Gewicht eintragen
 python -m rakkuun vorrat-buchen     # nach bestätigter Bestellung Vorrat fortschreiben
 python -m rakkuun seite             # Übersichtsseite nach build/plan.html
+python -m rakkuun warenkorb         # MyTime-Warenkorb befüllen (bestellt nie; --nur-ansehen)
 python -m pytest -q                 # Tests
 ```

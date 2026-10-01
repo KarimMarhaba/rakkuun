@@ -5,6 +5,7 @@
   python -m rakkuun gewicht 65.4        Gewicht eintragen (1× pro Woche, morgens, nüchtern)
   python -m rakkuun vorrat-buchen       Nach bestätigter Bestellung den Vorrat fortschreiben
   python -m rakkuun seite               Übersichtsseite (HTML) nach build/plan.html schreiben
+  python -m rakkuun warenkorb           MyTime-Warenkorb mit dem Wochenbedarf befüllen (bestellt nicht)
 """
 
 from __future__ import annotations
@@ -86,6 +87,25 @@ def cmd_seite(args) -> int:
     return 0
 
 
+def cmd_warenkorb(args) -> int:
+    from .warenkorb import MyTimeShop, fill_cart, render_result, FillResult
+    catalog = load_catalog(args.data)
+    if args.nur_ansehen:
+        with MyTimeShop() as shop:
+            shop.login()
+            result = FillResult()
+            result.cart, result.summary = shop.cart()
+        print(render_result(result))
+        return 0
+    week = generate_week(catalog, args.kw or _next_week())
+    if any(f.is_error for f in validate(catalog, week)):
+        print("❌ Der Plan verstößt gegen Grundregeln – Warenkorb wird nicht befüllt.", file=sys.stderr)
+        return 1
+    result = fill_cart(catalog, build_shopping_plan(catalog, week))
+    print(render_result(result))
+    return 1 if result.failed else 0
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(prog="rakkuun", description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -113,6 +133,11 @@ def main() -> None:
     p.add_argument("--kw", type=int)
     p.add_argument("--out", type=Path, default=Path("build/plan.html"))
     p.set_defaults(func=cmd_seite)
+
+    p = sub.add_parser("warenkorb", help="MyTime-Warenkorb befüllen (bestellt nicht)")
+    p.add_argument("--kw", type=int)
+    p.add_argument("--nur-ansehen", action="store_true", help="nur einloggen und Warenkorb anzeigen")
+    p.set_defaults(func=cmd_warenkorb)
 
     args = parser.parse_args()
     sys.exit(args.func(args))
