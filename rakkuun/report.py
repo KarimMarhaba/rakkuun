@@ -6,7 +6,7 @@ from .data import Catalog
 from .nutrition import day_nutrients
 from .plan import Week
 from .rules import LABELS, Finding, current_weight
-from .shopping import ShoppingPlan
+from .shopping import ShoppingPlan, weekly_cost
 
 COLUMNS = ["kcal", "protein", "carbs", "fat", "fiber", "calcium_mg", "iron_mg", "magnesium_mg", "zinc_mg"]
 
@@ -63,15 +63,17 @@ def render(catalog: Catalog, week: Week, findings: list[Finding], shopping: Shop
         return "\n".join(out) + "\n"
 
     out.append("## Bestellvorschlag MyTime")
+    out.append(f"Verbrauch dieser Woche ≈ {weekly_cost(catalog, week):.2f} € (Bestellung kann wegen Packungsgrößen und Vorrat abweichen)")
     out += [f"> {note}" for note in shopping.notes]
     for i, delivery in enumerate(shopping.deliveries, 1):
         out += ["", f"### Lieferung {i} (Tag {delivery.day}) – {delivery.total_eur:.2f} €", "",
-                "| Artikel | Bedarf | Packungen | Preis | Worauf achten |", "|---|---|---|---|---|"]
+                "| Zutat | MyTime-Produkt | Bedarf | Packungen | Preis | Hinweis |", "|---|---|---|---|---|---|"]
         for line in delivery.lines:
-            out.append(f"| {line.name} | {line.grams_needed:.0f} g | {line.packages} | "
-                       f"{line.total_eur:.2f} € | {line.kaufregel} |")
+            flag = {"ok": "", "pruefen": "⚠️ prüfen: ", "fehlt": "❌ fehlt: "}.get(line.status, "❔ nicht zugeordnet")
+            out.append(f"| {line.name} | {line.product or '–'} | {line.grams_needed:.0f} g | {line.packages} | "
+                       f"{line.total_eur:.2f} € | {flag}{line.hinweis or line.kaufregel} |")
         for line in delivery.filler:
-            out.append(f"| {line.name} _(Vorrat)_ | – | {line.packages} | {line.total_eur:.2f} € | {line.kaufregel} |")
+            out.append(f"| {line.name} _(Vorrat)_ | {line.product or '–'} | – | {line.packages} | {line.total_eur:.2f} € | |")
     if shopping.buy_locally:
         out += ["", "### 🛒 Vor Ort kaufen (bei Bedarf)"]
         for ingredient_id, grams in shopping.buy_locally.items():

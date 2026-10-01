@@ -12,6 +12,7 @@ wochentage:                    # training = volle Portionen, leicht = kleinere C
 spieltage: []                  # aktuell kein Basketball
 
 bestellung:
+  postleitzahl: "35039"        # Marburg – für Liefergebiet und Lieferslots
   liefertag: Mo                # Tag 0 des Wochenplans
   mindestbestellwert_eur: 70.0 # MyTime
   max_lieferungen_pro_woche: 1 # keine Extra-Bestellung für Frisches
