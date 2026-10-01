@@ -34,9 +34,9 @@ reis_bowl:
   active_minutes: 2
   zero_prep: true
   anleitung: >-
-    Reis + TK-Gemüse (60 % Erbsen & Möhren, 30 % Erbsen, 10 % Brokkoli/Spinat) + Wasser + Gewürze in den
+    Reis + TK-Gemüse (250 g Erbsen & Möhren, 50 g Brokkoli) + Wasser + Gewürze in den
     Reiskocher. 1,5 EL Öl erst über die fertige Bowl.
-  ingredients: {basmatireis: 100, tk_erbsen: 90, tk_gemuese_mix: 180, tk_brokkoli: 30, olivenoel: 15}
+  ingredients: {basmatireis: 100, tk_gemuese_mix: 250, tk_brokkoli: 50, olivenoel: 15}
   variants:
     leicht: {basmatireis: 75}
 

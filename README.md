@@ -26,7 +26,7 @@ Gewicht + Vorrat ───────────┘                  (❌ = St
 - **Wochenplan**: Ein Tagesplan, der jeden Wochentag gleich läuft. Abwechslung gibt es nur
   von Woche zu Woche (z. B. wechselt die Hülsenfrucht). Spieltage und leichte Tage sind
   vorbereitet, aber aktuell aus.
-- **Einkauf**: Eine Bestellung pro Woche. Der Vorrat wird abgezogen und alles auf Packungen
+- **Einkauf**: Bestellt wird, wenn der Vorrat ausgeht – die Lieferung kommt am Tag, bevor die erste Zutat leer ist, und deckt 7 Tage. Der Vorrat wird abgezogen und alles auf Packungen
   gerundet. Alles wird für 7 Tage bestellt; was bis zum Wochenende sehr reif
   wird (Bananen), ist markiert. Liegt der Warenkorb unter 70 €, wird mit lange haltbaren
   Artikeln aus dem Plan aufgefüllt, und der Rest wird als Vorrat verbucht.
@@ -54,5 +54,6 @@ python -m rakkuun pruefen --alle    # Grundregeln für alle Rotationswochen prü
 python -m rakkuun gewicht 65.4      # Gewicht eintragen
 python -m rakkuun seite             # Übersichtsseite nach build/plan.html
 python -m rakkuun warenkorb         # MyTime-Warenkorb befüllen (bestellt nie; --nur-ansehen)
+python -m rakkuun vorrat            # Bestand, Reichweite, nächster Liefertermin
 python -m pytest -q
 ```
