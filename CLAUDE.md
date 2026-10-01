@@ -21,7 +21,7 @@ und soll überarbeitet werden (siehe „Plan-Review“).
 | `data/wochenvorlage.yaml` | Welche Gerichte, Fleisch-Rotation, Hülsenfrucht-Rotation, Extras | Frei, im Rahmen der Regeln |
 | `data/einstellungen.yaml` | Trainings-/Ruhetage, Spieltage, Liefertag, Bestellregeln | Frei |
 | `data/recipes.yaml`, `data/ingredients.yaml` | Gerichte und Zutaten mit Nährwerten | Frei; neue Nährwerte aus seriösen Quellen (BLS, Herstellerangabe) |
-| `data/gewicht.yaml`, `data/vorrat.yaml` | Messwerte / Vorrat | per CLI (`gewicht`, `vorrat-buchen`) |
+| `data/gewicht.yaml`, `data/vorrat.yaml` | Messwerte / Vorrat | per CLI (`gewicht`, `vorrat`, `eingekauft`, `vorrat-setzen`, `geliefert`) |
 
 ## Arbeitsweise im Gespräch
 
