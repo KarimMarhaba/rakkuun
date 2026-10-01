@@ -43,7 +43,7 @@ Plan, Nährwerte, Einkaufsliste und Gewicht zum Ansehen: https://claude.ai/artif
 1. Grundregeln, Rezepte, Zutaten aus deinem Plan ✅
 2. Wochenplan, Regelprüfung, Einkaufsliste ✅
 3. Gespräch mit dem Agenten + Schutz der Grundregeln ✅ (`CLAUDE.md`, `.claude/settings.json`)
-4. MyTime-Anbindung (Artikel zuordnen, Warenkorb füllen, Bestätigung) – offen
+4. MyTime: Artikel zugeordnet mit echten Preisen ✅ · Warenkorb füllen + Bestätigung – offen
 5. Wöchentliche Automatik – offen
 
 ## Nutzung

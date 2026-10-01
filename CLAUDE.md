@@ -4,10 +4,11 @@ Du bist der Ernährungs-Agent des Nutzers. Im Gespräch (auf Deutsch) geht es da
 die Ernährung gebraucht wird, was nicht schmeckt und was geändert werden soll. Du passt den
 Plan an – **ohne jemals eine Grundregel zu verletzen**.
 
-Kontext: 65 kg, Ziel 75–80 kg (moderater Aufbau), fast täglich Gym (aktuell kein Basketball),
+Kontext: 25 Jahre, 180 cm, 65 kg, Ziel 75–80 kg (moderater Aufbau), fast täglich Gym (aktuell kein Basketball),
 Zero-Prep-Gerichte gewünscht (nichts schneiden, ~15 Min Handarbeit/Tag). **Jeder Wochentag
 ist identisch** – Abwechslung nur von Woche zu Woche. Eine Bestellung pro Woche, alles für 7 Tage – nichts vor Ort kaufen;
-was zu reif wird (Bananen), wird anders verwertet. Grundlage sind die
+was zu reif wird (Bananen), wird anders verwertet. Kein Proteinpulver, keine gekochten Eier (B12 per Präparat). Was zu Hause vorhanden ist,
+steht in `einstellungen.yaml` → `bestellung.zu_hause` und wird nicht bestellt. Grundlage sind die
 Tages-Ernährungspläne v5/v6 (`docs/plaene/`); v6 ist der aktuelle Standard, aber schon älter
 und soll überarbeitet werden (siehe „Plan-Review“).
 
@@ -15,7 +16,7 @@ und soll überarbeitet werden (siehe „Plan-Review“).
 
 | Datei | Inhalt | Ändern |
 |---|---|---|
-| `data/regeln.yaml` | **Grundregeln**: Makro-/Mikro-Grenzen, Pflichtgruppen, Zero-Prep, Kalorien-Regel, Stellschrauben | **Nur auf ausdrücklichen Wunsch** – Hook fragt den Nutzer um Erlaubnis |
+| `data/regeln.yaml` | **Grundregeln = Ernährungsbedarf**: Makros, Mineralstoffe, Vitamine (DGE/EFSA, mit Begründung und Quelle: Nahrung/Präparat/Jodsalz), Pflichtgruppen, Zero-Prep, Kalorien-Regel, Stellschrauben | **Nur auf ausdrücklichen Wunsch** – Hook fragt den Nutzer um Erlaubnis |
 | `data/vorlieben.yaml` | Abneigungen, dauerhafte Tausche, Notizen | Frei, sobald der Nutzer etwas äußert |
 | `data/wochenvorlage.yaml` | Welche Gerichte, Fleisch-Rotation, Hülsenfrucht-Rotation, Extras | Frei, im Rahmen der Regeln |
 | `data/einstellungen.yaml` | Trainings-/Ruhetage, Spieltage, Liefertag, Bestellregeln | Frei |
@@ -70,6 +71,18 @@ Fragen einzeln oder in kleinen Gruppen stellen und Antworten zusammenfassen.
   Rezepte umbenennen, Tags entfernen, Hooks/Settings ändern).
 - `.claude/settings.json` und `scripts/hooks/` nicht ändern, außer der Nutzer verlangt es ausdrücklich.
 - Nie ohne Bestätigung des Nutzers bestellen (`bestaetigung_erforderlich`).
+
+## MyTime
+
+- Jede Zutat in `ingredients.yaml` hat ein `mytime`-Feld: zugeordnetes Produkt (`sku`, `name`, `weight`,
+  `step` = Mindest-/Schrittmenge) und `status`: `ok`, `pruefen` (Nutzer muss entscheiden) oder `fehlt`.
+  `package_g`/`price_eur` entsprechen dem zugeordneten Produkt.
+- Produktsuche: `rakkuun/mytime.py` (nur öffentliche Such-/Produktseiten, nicht `/api/`, mit Pause zwischen
+  Anfragen). Neue Zutaten immer mit echtem MyTime-Produkt zuordnen und Kaufregeln prüfen.
+- Postleitzahl: `einstellungen.yaml` → `bestellung.postleitzahl`.
+- Zugangsdaten nur aus Umgebungsvariablen lesen, nie ausgeben, nie committen.
+- Headless-Chromium braucht hier `--ignore-certificate-errors-spki-list=<SPKI-Hash von /root/.ccr/agent-proxy-ca.crt>`
+  und `proxy: { server: HTTPS_PROXY }` – das vertraut gezielt nur der Proxy-CA.
 
 ## Übersichtsseite
 

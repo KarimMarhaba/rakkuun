@@ -11,6 +11,8 @@
 
 koerpergewicht_kg: 65          # Fallback, wenn data/gewicht.yaml leer ist
 zielgewicht_kg: [75, 80]
+alter_jahre: 25                # Referenzwerte: DGE, Männer 25 bis unter 51 Jahre
+groesse_cm: 180
 ziel: moderater Aufbau (+250–350 kcal Überschuss), Kraft und Sprungkraft für Basketball
 
 naehrwerte:                     # pro Tag; *_pro_kg wird mit dem aktuellen Gewicht gerechnet
@@ -38,12 +40,33 @@ naehrwerte:                     # pro Tag; *_pro_kg wird mit dem aktuellen Gewic
      grund: "DGE-Referenzwert; hoher Bedarf durch viel Sport."}
   - {naehrstoff: zinc_mg, min: 14, stufe: hinweis,
      grund: "DGE-Referenzwert bei ballaststoffreicher Kost; Kürbiskerne sind der Hebel."}
+  # --- Vitamine und weitere Mineralstoffe (DGE-Referenzwerte Männer, EFSA-Obergrenzen) ---
+  - {naehrstoff: kalium_mg, min: 4000, stufe: fehler,
+     grund: "DGE-Schätzwert; Muskel- und Nervenfunktion, Ausgleich zu Salz."}
+  - {naehrstoff: selen_ug, min: 70, stufe: fehler,
+     grund: "DGE-Schätzwert; deutsche Böden sind selenarm."}
+  - {naehrstoff: selen_ug, max: 255, stufe: fehler,
+     grund: "EFSA-Obergrenze – mehr ist auf Dauer schädlich (deshalb Paranüsse nur bei Bedarf)."}
+  - {naehrstoff: vitamin_a_ug, min: 850, stufe: fehler,
+     grund: "DGE-Referenzwert; über Karotten/Spinat (Beta-Carotin), nur mit Fett gut aufgenommen."}
+  - {naehrstoff: vitamin_c_mg, min: 110, stufe: fehler,
+     grund: "DGE-Referenzwert; verbessert die Eisenaufnahme aus Pflanzen."}
+  - {naehrstoff: folat_ug, min: 300, stufe: fehler,
+     grund: "DGE-Referenzwert; Zellteilung und Blutbildung."}
+  - {naehrstoff: vitamin_b12_ug, min: 4, quelle: supplement,
+     grund: "DGE-Schätzwert; nur aus tierischen Lebensmitteln. Das Essen liefert ~3 µg (Milch, Skyr, Hähnchen) – der Rest über ein B12-Präparat, weil gekochte Eier nicht gemocht werden."}
+  - {naehrstoff: vitamin_d_ug, min: 20, quelle: supplement,
+     grund: "DGE-Schätzwert ohne eigene Bildung. Okt–März bildet die Haut in Deutschland kaum Vitamin D, Essen liefert < 2 µg – deshalb Präparat."}
+  - {naehrstoff: jod_ug, min: 200, quelle: jodsalz,
+     grund: "DGE-Referenzwert; Deutschland ist Jodmangelgebiet – konsequent Jodsalz."}
+  - {naehrstoff: omega3_epa_dha_mg, min: 250, quelle: supplement,
+     grund: "EFSA-Empfehlung; Omega-3-Kapseln mit EPA/DHA oder 1× pro Woche fetter Fisch."}
 
 gruppen:                        # Regeln auf Zutatengruppen (tags in ingredients.yaml)
   - {tag: selen_quelle, max_pro_tag_g: 10, stufe: fehler,
      grund: "Max. 2 Paranüsse täglich – Selen hat eine Obergrenze."}
   - {tag: omega3_ala, min_pro_tag_g: 10, stufe: fehler,
-     grund: "1 EL geschrotete Leinsamen täglich deckt Omega-3 (ALA)."}
+     grund: "Leinsamen/Walnüsse täglich decken Omega-3 (ALA)."}
   - {tag: rohes_obst, min_pro_tag_g: 100, stufe: fehler,
      grund: "Rohes Obst täglich (TK-Beeren) – deckt Vitamin C."}
   - {tag: vitamin_a_gemuese, min_pro_tag_g: 60, stufe: fehler,
@@ -63,11 +86,11 @@ alltag:
 gewohnheiten:
   - "Kreatin 5 g täglich (in den Abendsnack – Konstanz zählt)"
   - "Vitamin D zum Frühstück, nie nüchtern"
+  - "B12-Präparat (z. B. 1× täglich oder nach Packungsangabe) – Blutwert prüfen lassen"
   - "Omega-3-Kapseln mit EPA/DHA – sonst 1× pro Woche Makrele/Sardinen einplanen"
   - "Konsequent Jodsalz"
   - "Kaffee/Tee mit ~1 h Abstand zu Oatmeal und Nudeln (Eisenaufnahme)"
-  - "Koffein ~200 mg ca. 45 Min vor Pickup/Spiel"
-  - "Blutwerte (Ferritin, Vitamin D, B12) einmal bestimmen lassen"
+  - "Blutwerte (Ferritin, Vitamin D, B12) einmal bestimmen lassen – B12 ist im Plan knapp"
 
 # Kalorien-Regel: wichtiger als jede Zahl oben. Die Waage ist die Messung.
 kalorien_regel:

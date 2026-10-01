@@ -18,7 +18,16 @@ LABELS = {
     "kcal": ("Kalorien", "kcal"), "protein": ("Protein", "g"), "carbs": ("Kohlenhydrate", "g"),
     "fat": ("Fett", "g"), "fiber": ("Ballaststoffe", "g"), "calcium_mg": ("Calcium", "mg"),
     "iron_mg": ("Eisen", "mg"), "magnesium_mg": ("Magnesium", "mg"), "zinc_mg": ("Zink", "mg"),
+    "vitamin_a_ug": ("Vitamin A", "µg"), "vitamin_c_mg": ("Vitamin C", "mg"), "vitamin_d_ug": ("Vitamin D", "µg"),
+    "vitamin_b12_ug": ("Vitamin B12", "µg"), "folat_ug": ("Folat", "µg"), "selen_ug": ("Selen", "µg"),
+    "kalium_mg": ("Kalium", "mg"), "jod_ug": ("Jod", "µg"), "omega3_epa_dha_mg": ("Omega-3 EPA/DHA", "mg"),
 }
+
+FOOD = "nahrung"  # Regeln mit anderer 'quelle' (supplement, jodsalz) werden nicht gegen das Essen geprüft
+
+
+def food_rules(rules: dict) -> list[dict]:
+    return [r for r in rules.get("naehrwerte", []) if r.get("quelle", FOOD) == FOOD]
 
 
 @dataclass(frozen=True)
@@ -65,7 +74,7 @@ def _bounds(rule: dict, weight: float) -> tuple[float | None, float | None]:
 
 def _fmt(nutrient: str, value: float) -> str:
     label, unit = LABELS.get(nutrient, (nutrient, ""))
-    digits = 1 if unit == "g" else 0
+    digits = 1 if unit == "g" or abs(value) < 10 else 0
     return f"{label} {value:.{digits}f} {unit}".strip()
 
 
@@ -81,7 +90,7 @@ def validate(catalog: Catalog, week: Week) -> list[Finding]:
         grams = day_grams(catalog, day)
         values = day_nutrients(catalog, day)
 
-        for rule in rules.get("naehrwerte", []):
+        for rule in food_rules(rules):
             if rule.get("tagestyp") not in (None, day.typ):
                 continue
             nutrient = rule["naehrstoff"]
