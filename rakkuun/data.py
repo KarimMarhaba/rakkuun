@@ -103,7 +103,8 @@ def _check_references(catalog: Catalog) -> None:
     if unknown:
         raise ValueError(f"Wochenvorlage nutzt unbekannte Rezepte: {unknown}")
     ing_refs = (list(t.get("huelsenfrucht_rotation", [])) + list(p.get("abneigungen", []))
-                + list(p.get("tausch", {})) + list(p.get("tausch", {}).values()) + list(catalog.pantry))
+                + list(p.get("tausch", {})) + list(p.get("tausch", {}).values()) + list(catalog.pantry)
+                + list(catalog.ordering.get("zu_hause") or []))
     unknown = sorted({i for i in ing_refs if i not in catalog.ingredients})
     if unknown:
         raise ValueError(f"Unbekannte Zutat-IDs in Vorlage/Vorlieben/Vorrat: {unknown}")

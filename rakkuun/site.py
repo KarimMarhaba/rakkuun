@@ -11,13 +11,14 @@ from html import escape
 from .data import Catalog
 from .nutrition import nutrients
 from .plan import Day, Week, day_grams, meal_grams
-from .rules import LABELS, Finding, current_weight
+from .rules import LABELS, Finding, current_weight, food_rules
 from .shopping import ShoppingPlan, weekly_cost
 
 MEAL_LABELS = {"fruehstueck": "Frühstück", "mittag": "Mittag", "abend": "Abend", "snack": "Abendsnack",
                "extra": "Extra"}
 MEAL_ORDER = ["fruehstueck", "mittag", "abend", "snack", "extra"]
-NUTRIENTS = ["kcal", "protein", "carbs", "fat", "fiber", "calcium_mg", "iron_mg", "magnesium_mg", "zinc_mg"]
+NUTRIENTS = ["kcal", "protein", "carbs", "fat", "fiber", "calcium_mg", "iron_mg", "magnesium_mg", "zinc_mg",
+             "kalium_mg", "selen_ug", "vitamin_a_ug", "vitamin_c_mg", "folat_ug", "vitamin_b12_ug"]
 
 CSS = """
 /* Layout: eine ruhige Spalte wie eine Küchen-Karteikarte; Mahlzeiten als Karten, Zahlen in Mono. */
@@ -125,7 +126,7 @@ def _targets(catalog: Catalog, day: Day) -> dict[str, tuple[float | None, float 
     """Grenzen je Nährstoff für diesen Tagestyp (nur Regeln der Stufe 'fehler' bilden das Zielband)."""
     weight = current_weight(catalog)
     bounds: dict[str, list[float | None]] = {}
-    for rule in catalog.rules.get("naehrwerte", []):
+    for rule in food_rules(catalog.rules):
         if rule.get("tagestyp") not in (None, day.typ) or rule.get("stufe") != "fehler":
             continue
         lo = rule.get("min", rule["min_pro_kg"] * weight if "min_pro_kg" in rule else None)
@@ -253,6 +254,10 @@ def _shopping_html(catalog: Catalog, week: Week, shopping: ShoppingPlan) -> str:
         </table>
       </div>""")
     notes = [escape(n) for n in shopping.notes]
+    if shopping.from_home:
+        items = ", ".join(f"{escape(catalog.ingredients[i].name.split(',')[0])} ({g:.0f} g)"
+                          for i, g in shopping.from_home.items())
+        notes.insert(0, f"<b>Von zu Hause, nicht bestellt:</b> {items}. Sag Bescheid, wenn etwas leer wird.")
     if shopping.spoilage_risks:
         first: dict[str, str] = {}
         for ingredient_id, d in sorted(shopping.spoilage_risks, key=lambda r: r[1]):
@@ -302,6 +307,25 @@ def _weight_html(catalog: Catalog) -> str:
       </div>"""
 
 
+def _other_sources_html(catalog: Catalog) -> str:
+    rows = []
+    source_label = {"supplement": "Präparat", "jodsalz": "Jodsalz"}
+    for rule in catalog.rules.get("naehrwerte", []):
+        source = rule.get("quelle", "nahrung")
+        if source == "nahrung":
+            continue
+        label, unit = LABELS.get(rule["naehrstoff"], (rule["naehrstoff"], ""))
+        rows.append(f'<tr><td><b>{label}</b><span class="rule">{escape(rule.get("grund", ""))}</span></td>'
+                    f'<td class="r num">≥ {_fmt(rule["min"], unit)}</td>'
+                    f'<td class="r">{source_label.get(source, source)}</td></tr>')
+    if not rows:
+        return ""
+    return f"""
+    <div class="table-wrap"><table>
+      <thead><tr><th>Nährstoff</th><th class="r">Bedarf/Tag</th><th class="r">Gedeckt über</th></tr></thead>
+      <tbody>{''.join(rows)}</tbody></table></div>"""
+
+
 def render_site(catalog: Catalog, week: Week, findings: list[Finding], shopping: ShoppingPlan | None) -> str:
     day = week.days[0]
     errors = [f for f in findings if f.is_error]
@@ -343,6 +367,10 @@ def render_site(catalog: Catalog, week: Week, findings: list[Finding], shopping:
       {_nutrients_html(catalog, day)}
     </div>
     {_findings_html(findings)}
+    <h3>Nicht über das Essen gedeckt</h3>
+    {_other_sources_html(catalog)}
+    <p class="note">Alle Zielwerte stehen in deinen Grundregeln (data/regeln.yaml) mit Begründung. Nährwerte der
+      Lebensmittel sind Richtwerte (BLS/Herstellerangaben).</p>
   </section>
 
   <section>

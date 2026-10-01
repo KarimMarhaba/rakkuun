@@ -43,14 +43,16 @@ def test_real_plan_meets_all_ground_rules(kw):
     assert errors(catalog, kw) == []
 
 
-def test_oatmeal_matches_plan_v6():
+def test_oatmeal_without_protein_powder():
     catalog = load_catalog()
     day = generate_week(catalog, 0).days[0]
     from rakkuun.nutrition import nutrients
     from rakkuun.plan import meal_grams
-    values = nutrients(catalog, meal_grams(catalog, "oatmeal", day))
-    assert values["kcal"] == pytest.approx(960, rel=0.05)
-    assert values["protein"] == pytest.approx(54, rel=0.05)
+    grams = meal_grams(catalog, "oatmeal", day)
+    assert "proteinpulver" not in grams and "paranuesse" not in grams
+    values = nutrients(catalog, grams)
+    assert values["kcal"] == pytest.approx(800, rel=0.05)
+    assert values["protein"] == pytest.approx(30, rel=0.05)
 
 
 def varied_week(data):
@@ -111,10 +113,17 @@ def test_disliked_ingredient_in_plan_is_an_error(data):
 
 
 def test_valid_swap_satisfies_preference_and_rules(data):
-    edit(data, "vorlieben.yaml", abneigungen=["tk_brokkoli"], tausch={"tk_brokkoli": "tk_spinat"})
+    edit(data, "vorlieben.yaml", abneigungen=["kidneybohnen"], tausch={"kidneybohnen": "kichererbsen"})
     catalog = load_catalog(data)
-    assert errors(catalog) == []
-    assert "tk_brokkoli" not in day_grams(catalog, generate_week(catalog, 0).days[0])
+    for kw in range(4):
+        assert errors(catalog, kw) == []
+        assert "kidneybohnen" not in day_grams(catalog, generate_week(catalog, kw).days[0])
+
+
+def test_swap_that_loses_vitamin_c_is_caught(data):
+    """Brokkoli -> Spinat klingt harmlos, kostet aber Vitamin C."""
+    edit(data, "vorlieben.yaml", abneigungen=["tk_brokkoli"], tausch={"tk_brokkoli": "tk_spinat"})
+    assert any(f.text.startswith("Vitamin C") for f in errors(load_catalog(data)))
 
 
 def test_dropping_berries_breaks_vitamin_c_rule(data):
@@ -185,12 +194,12 @@ def test_packages_rounded_up_and_pantry_carried_over():
     catalog = load_catalog()
     shopping = build_shopping_plan(catalog, generate_week(catalog, 0))
     lines = {l.ingredient_id: l for d in shopping.deliveries for l in d.lines}
-    assert lines["griech_joghurt_10"].grams_needed == 1400
-    assert lines["griech_joghurt_10"].packages == 3
+    assert lines["skyr"].grams_needed == 2100
+    assert lines["skyr"].packages == 5
     # 1 kg Reis gekauft, 700 g verbraucht -> Rest landet im Vorrat
     assert shopping.pantry_after["basmatireis"] == 300
-    # Frisches (Joghurt, 21 Tage) wird nicht als Vorrat fortgeschrieben
-    assert "griech_joghurt_10" not in shopping.pantry_after
+    # Frisches (Skyr, 21 Tage) wird nicht als Vorrat fortgeschrieben
+    assert "skyr" not in shopping.pantry_after
 
 
 def test_pantry_reduces_order(data):
@@ -296,12 +305,34 @@ def test_every_planned_ingredient_has_a_mytime_decision():
 
 def test_packages_respect_mytime_step(data):
     ingredients = yaml.safe_load((data / "ingredients.yaml").read_text(encoding="utf-8"))
-    ingredients["creme_fraiche"]["mytime"]["step"] = 2
+    ingredients["leinsamen"]["mytime"]["step"] = 2
     (data / "ingredients.yaml").write_text(yaml.safe_dump(ingredients, allow_unicode=True), encoding="utf-8")
     catalog = load_catalog(data)
     line = next(l for d in build_shopping_plan(catalog, generate_week(catalog, 0)).deliveries
-                for l in d.lines if l.ingredient_id == "creme_fraiche")
+                for l in d.lines if l.ingredient_id == "leinsamen")
     assert line.packages == 2
+
+
+def test_items_at_home_are_not_ordered():
+    catalog = load_catalog()
+    shopping = build_shopping_plan(catalog, generate_week(catalog, 0))
+    ordered = {l.ingredient_id for d in shopping.deliveries for l in d.lines + d.filler}
+    assert not ordered & {"olivenoel", "passierte_tomaten", "tk_gemuese_mix"}
+    assert shopping.from_home["olivenoel"] == 7 * 30
+
+
+def test_selenium_upper_limit_is_enforced(data):
+    recipes = yaml.safe_load((data / "recipes.yaml").read_text(encoding="utf-8"))
+    recipes["oatmeal"]["ingredients"]["paranuesse"] = 20
+    (data / "recipes.yaml").write_text(yaml.safe_dump(recipes, allow_unicode=True), encoding="utf-8")
+    assert any(f.text.startswith("Selen") and ">" in f.text for f in errors(load_catalog(data)))
+
+
+def test_supplement_covered_nutrients_are_not_checked_against_food():
+    catalog = load_catalog()
+    findings = validate(catalog, generate_week(catalog, 0))
+    assert not any(f.text.startswith(("Vitamin D", "Jod", "Omega-3 EPA")) for f in findings)
+    assert any(f.text.startswith("Vitamin B12") and not f.is_error for f in findings)
 
 
 def test_parse_mytime_search_result():

@@ -8,7 +8,8 @@ from .plan import Week
 from .rules import LABELS, Finding, current_weight
 from .shopping import ShoppingPlan, weekly_cost
 
-COLUMNS = ["kcal", "protein", "carbs", "fat", "fiber", "calcium_mg", "iron_mg", "magnesium_mg", "zinc_mg"]
+COLUMNS = ["kcal", "protein", "carbs", "fat", "fiber", "calcium_mg", "iron_mg", "magnesium_mg", "zinc_mg",
+           "kalium_mg", "selen_ug", "vitamin_a_ug", "vitamin_c_mg", "folat_ug", "vitamin_b12_ug"]
 
 
 def merge_daily(findings: list[Finding], days: int = 7) -> list[Finding]:
@@ -74,6 +75,10 @@ def render(catalog: Catalog, week: Week, findings: list[Finding], shopping: Shop
                        f"{line.total_eur:.2f} € | {flag}{line.hinweis or line.kaufregel} |")
         for line in delivery.filler:
             out.append(f"| {line.name} _(Vorrat)_ | {line.product or '–'} | – | {line.packages} | {line.total_eur:.2f} € | |")
+    if shopping.from_home:
+        out += ["", "### 🏠 Von zu Hause (nicht bestellt)"]
+        for ingredient_id, grams in shopping.from_home.items():
+            out.append(f"- {catalog.ingredients[ingredient_id].name}: {grams:.0f} g diese Woche")
     if shopping.buy_locally:
         out += ["", "### 🛒 Vor Ort kaufen (bei Bedarf)"]
         for ingredient_id, grams in shopping.buy_locally.items():

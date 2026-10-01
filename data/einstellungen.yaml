@@ -19,3 +19,5 @@ bestellung:
   zweite_lieferung_nach_tagen: 3
   verderbliches_vor_ort_kaufen: false # true = was bis zum Verbrauch nicht frisch bleibt, kommt auf eine "Vor Ort kaufen"-Liste
   bestaetigung_erforderlich: true
+  # Hast du zu Hause – wird nicht bestellt. Sag dem Agenten Bescheid, wenn etwas leer wird.
+  zu_hause: [olivenoel, passierte_tomaten, tk_gemuese_mix]
