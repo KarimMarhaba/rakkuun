@@ -2,7 +2,7 @@
 # Du (bzw. der Agent auf deinen Wunsch) darfst sie frei ändern – die Grundregeln
 # in regeln.yaml werden trotzdem immer geprüft.
 
-mahlzeiten: [oatmeal, nudeln_tomate_huelsen, reis_bowl, skyr_walnuss_snack, clementinen_obst]
+mahlzeiten: [oatmeal, nudeln_tomate_huelsen, reis_bowl, skyr_walnuss_snack]
 
 # Fleisch zur Bowl: Anzahl Tage pro Woche. Jeden Tag gleich -> nur eine Sorte mit 7 Tagen.
 # (Gyros max. 4×/Woche wegen Salz – deshalb täglich Hähnchenbrust natur.)

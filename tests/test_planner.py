@@ -120,8 +120,10 @@ def test_valid_swap_satisfies_preference_and_rules(data):
 
 
 def test_swap_that_loses_vitamin_c_is_caught(data):
-    """Brokkoli -> Spinat klingt harmlos, kostet aber Vitamin C (hier ohne die Clementinen gerechnet)."""
-    edit(data, "wochenvorlage.yaml", mahlzeiten=["oatmeal", "nudeln_tomate_huelsen", "reis_bowl", "skyr_walnuss_snack"])
+    """Brokkoli -> Spinat klingt harmlos, kostet aber Vitamin C (hier mit nur 100 g Beeren gerechnet)."""
+    recipes = yaml.safe_load((data / "recipes.yaml").read_text(encoding="utf-8"))
+    recipes["skyr_walnuss_snack"]["ingredients"]["tk_beeren"] = 100
+    (data / "recipes.yaml").write_text(yaml.safe_dump(recipes, allow_unicode=True), encoding="utf-8")
     edit(data, "vorlieben.yaml", abneigungen=["tk_brokkoli"], tausch={"tk_brokkoli": "tk_spinat"})
     assert any(f.text.startswith("Vitamin C") for f in errors(load_catalog(data)))
 
