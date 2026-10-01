@@ -11,6 +11,8 @@
 
 koerpergewicht_kg: 65          # Fallback, wenn data/gewicht.yaml leer ist
 zielgewicht_kg: [75, 80]
+alter_jahre: 25                # Referenzwerte: DGE, Männer 25 bis unter 51 Jahre
+groesse_cm: 180
 ziel: moderater Aufbau (+250–350 kcal Überschuss), Kraft und Sprungkraft für Basketball
 
 naehrwerte:                     # pro Tag; *_pro_kg wird mit dem aktuellen Gewicht gerechnet
@@ -51,8 +53,8 @@ naehrwerte:                     # pro Tag; *_pro_kg wird mit dem aktuellen Gewic
      grund: "DGE-Referenzwert; verbessert die Eisenaufnahme aus Pflanzen."}
   - {naehrstoff: folat_ug, min: 300, stufe: fehler,
      grund: "DGE-Referenzwert; Zellteilung und Blutbildung."}
-  - {naehrstoff: vitamin_b12_ug, min: 4, stufe: hinweis,
-     grund: "DGE-Schätzwert; nur aus tierischen Lebensmitteln. Knapp im Plan – Blutwert prüfen, ggf. Eier oder B12-Präparat."}
+  - {naehrstoff: vitamin_b12_ug, min: 4, quelle: supplement,
+     grund: "DGE-Schätzwert; nur aus tierischen Lebensmitteln. Das Essen liefert ~3 µg (Milch, Skyr, Hähnchen) – der Rest über ein B12-Präparat, weil gekochte Eier nicht gemocht werden."}
   - {naehrstoff: vitamin_d_ug, min: 20, quelle: supplement,
      grund: "DGE-Schätzwert ohne eigene Bildung. Okt–März bildet die Haut in Deutschland kaum Vitamin D, Essen liefert < 2 µg – deshalb Präparat."}
   - {naehrstoff: jod_ug, min: 200, quelle: jodsalz,
@@ -84,6 +86,7 @@ alltag:
 gewohnheiten:
   - "Kreatin 5 g täglich (in den Abendsnack – Konstanz zählt)"
   - "Vitamin D zum Frühstück, nie nüchtern"
+  - "B12-Präparat (z. B. 1× täglich oder nach Packungsangabe) – Blutwert prüfen lassen"
   - "Omega-3-Kapseln mit EPA/DHA – sonst 1× pro Woche Makrele/Sardinen einplanen"
   - "Konsequent Jodsalz"
   - "Kaffee/Tee mit ~1 h Abstand zu Oatmeal und Nudeln (Eisenaufnahme)"

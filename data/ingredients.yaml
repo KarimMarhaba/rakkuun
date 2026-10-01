@@ -167,6 +167,17 @@ olivenoel:
   staple: true
   per_100g: {kcal: 884, protein: 0.0, carbs: 0.0, fat: 100.0, fiber: 0.0, calcium_mg: 1, iron_mg: 0.6, magnesium_mg: 0, zinc_mg: 0.0,
              vitamin_a_ug: 0, vitamin_c_mg: 0, vitamin_d_ug: 0, vitamin_b12_ug: 0, folat_ug: 0, selen_ug: 0, kalium_mg: 1}
+kochcreme:
+  name: Kochcreme 15 % (Schraubverschluss)
+  mytime_query: Cremefine zum Kochen 15%
+  mytime: {sku: '4503060110', name: "Rama Cremefine zum Kochen 15% Fett", weight: "250 ml", step: 1, status: ok}
+  package_g: 250
+  price_eur: 1.79
+  shelf_life_days: 30
+  kaufregel: Nach dem Öffnen gekühlt nur ~4 Tage haltbar – deshalb 2 kleine Packungen pro Woche statt einer großen.
+  per_100g: {kcal: 162, protein: 2.7, carbs: 4.1, fat: 15.0, fiber: 0.0, calcium_mg: 90, iron_mg: 0.1, magnesium_mg: 9, zinc_mg: 0.3,
+             vitamin_a_ug: 100, vitamin_c_mg: 0.5, vitamin_d_ug: 0.1, vitamin_b12_ug: 0.3, folat_ug: 5, selen_ug: 1, kalium_mg: 110}
+
 # --- Abend -----------------------------------------------------------------
 basmatireis:
   name: Reis (Basmati oder Langkorn)
@@ -246,7 +257,7 @@ haehnchengyros_tk:
 haehnchenbrust_tk:
   name: Hähnchenbrust natur, tiefgekühlt, einzeln gefroren
   mytime_query: Hähnchenbrustfilet tiefgekühlt einzeln
-  mytime: {sku: '4503100008', name: "Sprehe Feinkost Hähnchen-Brustfilet natur", weight: "2 kg", step: 1, status: pruefen, hinweis: "Einzeln entnehmbar und TK, aber leicht gewürzt (1,25 g Salz/100 g). Ungewürzte TK-Brust gibt es bei MyTime nicht."}
+  mytime: {sku: '4503100008', name: "Sprehe Feinkost Hähnchen-Brustfilet natur", weight: "2 kg", step: 1, status: ok, hinweis: "Leicht gewürzt (1,25 g Salz/100 g) – vom Nutzer so akzeptiert"}
   package_g: 2000
   price_eur: 21.99
   shelf_life_days: 180
@@ -267,6 +278,19 @@ kuerbiskerne:
   per_100g: {kcal: 575, protein: 35.0, carbs: 9.0, fat: 49.0, fiber: 6.0, calcium_mg: 45, iron_mg: 8.8, magnesium_mg: 500, zinc_mg: 7.5,
              vitamin_a_ug: 1, vitamin_c_mg: 2, vitamin_d_ug: 0, vitamin_b12_ug: 0, folat_ug: 58, selen_ug: 9, kalium_mg: 800}
 # --- Abendsnack ------------------------------------------------------------
+clementinen:
+  name: Clementinen
+  mytime_query: Clementinen
+  mytime: {sku: '4507010941', name: "Clementinen", weight: "750 g", step: 1, status: ok,
+           hinweis: "Saisonware (ca. Okt–Feb); außerhalb der Saison durch Äpfel ersetzen"}
+  package_g: 560
+  price_eur: 3.39
+  shelf_life_days: 14
+  tags: [rohes_obst]
+  kaufregel: Packungsgröße = essbarer Anteil (ca. 75 % von 750 g). Mit der Hand schälen, kein Messer nötig.
+  per_100g: {kcal: 47, protein: 0.9, carbs: 9.0, fat: 0.2, fiber: 1.7, calcium_mg: 30, iron_mg: 0.1, magnesium_mg: 10, zinc_mg: 0.1,
+             vitamin_a_ug: 34, vitamin_c_mg: 49, vitamin_d_ug: 0, vitamin_b12_ug: 0, folat_ug: 24, selen_ug: 0.1, kalium_mg: 177}
+
 walnuesse:
   name: Walnusskerne
   mytime_query: Walnusskerne
