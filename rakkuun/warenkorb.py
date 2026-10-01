@@ -138,28 +138,38 @@ class MyTimeShop:
         return items, summary
 
     def add(self, sku: str, query: str, quantity: int) -> None:
-        """Artikel über die Suche finden und mit der gewünschten Menge in den Warenkorb legen."""
-        for q in (query, sku):
-            self._goto(f"/search?query={q}")
-            form = self.page.locator(f"form.product-card__order[data-listtype=cart][data-sku='{sku}']")
-            if form.count():
+        """Artikel über die Suche finden und mit der gewünschten Menge in den Warenkorb legen.
+        Nach dem Klick wird geprüft, ob der Shop den Artikel als 'im Warenkorb' markiert; sonst ein
+        zweiter Versuch."""
+        for attempt in range(2):
+            for q in (query, sku):
+                self._goto(f"/search?query={q}")
+                form = self.page.locator(f"form.product-card__order[data-listtype=cart][data-sku='{sku}']")
+                if not form.count():
+                    continue
                 form = form.first
                 form.scroll_into_view_if_needed()
-                field_ = form.locator("input[name=quantity]")
-                field_.fill(str(quantity))
-                form.locator("button[data-add-to-cart]").click()
-                try:  # warten, bis der Shop den Warenkorb aktualisiert hat
-                    self.page.wait_for_load_state("networkidle", timeout=10000)
+                form.locator("input[name=quantity]").fill(str(quantity))
+                button = form.locator("button[data-add-to-cart]")
+                button.click()
+                try:
+                    self.page.wait_for_function(
+                        "b => b.classList.contains('btn--added')", arg=button.element_handle(), timeout=8000)
+                    self.page.wait_for_timeout(800)
+                    return
                 except Exception:
-                    pass
-                self.page.wait_for_timeout(1500)
-                return
-        raise LookupError("Artikel in der Suche nicht gefunden")
+                    break   # nicht bestätigt -> zweiter Versuch mit frisch geladener Seite
+            else:
+                raise LookupError("Artikel in der Suche nicht gefunden")
+        raise RuntimeError("Shop hat das Hinzufügen nicht bestätigt")
 
 
-def fill_cart(catalog: Catalog, shopping: ShoppingPlan, headless: bool = True) -> FillResult:
+def fill_cart(catalog: Catalog, shopping: ShoppingPlan, headless: bool = True,
+              extras: dict[str, tuple[str, str, int]] | None = None) -> FillResult:
+    """Bitte während des Laufs den Warenkorb nicht in App/Browser öffnen: MyTime verträgt keine zwei
+    gleichzeitigen Sitzungen am selben Warenkorb – eine überschreibt dann die andere."""
     result = FillResult()
-    wanted: dict[str, tuple[str, str, int]] = {}
+    wanted: dict[str, tuple[str, str, int]] = dict(extras or {})
     for delivery in shopping.deliveries:
         for line in delivery.lines + delivery.filler:
             ing = catalog.ingredients[line.ingredient_id]
@@ -173,16 +183,28 @@ def fill_cart(catalog: Catalog, shopping: ShoppingPlan, headless: bool = True) -
     with MyTimeShop(headless=headless) as shop:
         shop.login()
         in_cart = {item.sku: item.quantity for item in shop.cart()[0]}
+        errors: dict[str, str] = {}
         for sku, (name, query, qty) in wanted.items():
-            missing = qty - in_cart.get(sku, 0)
-            if missing <= 0:
+            if qty - in_cart.get(sku, 0) <= 0:
                 result.already.append((sku, name, in_cart[sku]))
-                continue
-            try:
-                shop.add(sku, query, missing)
-                result.added.append((sku, name, missing))
-            except Exception as e:  # einzelner Artikel darf den Rest nicht blockieren
-                result.failed.append((name, str(e).splitlines()[0][:120]))
+        # Bis zu zwei Runden: Wird der Warenkorb zwischendurch von einer anderen Sitzung (App/Browser)
+        # überschrieben, fehlen danach Artikel – die werden in der zweiten Runde ergänzt.
+        for _ in range(2):
+            pending = {sku: qty - in_cart.get(sku, 0) for sku, (_, _, qty) in wanted.items()
+                       if qty - in_cart.get(sku, 0) > 0}
+            if not pending:
+                break
+            for sku, missing in pending.items():
+                name, query, _ = wanted[sku]
+                try:
+                    shop.add(sku, query, missing)
+                    if not any(a[0] == sku for a in result.added):
+                        result.added.append((sku, name, missing))
+                    errors.pop(sku, None)
+                except Exception as e:  # einzelner Artikel darf den Rest nicht blockieren
+                    errors[sku] = str(e).splitlines()[0][:120]
+            in_cart = {item.sku: item.quantity for item in shop.cart()[0]}
+        result.failed += [(wanted[sku][0], why) for sku, why in errors.items()]
         result.cart, result.summary = shop.cart()
 
     # Gegenprobe: liegt jetzt wirklich die gewünschte Menge im Korb?

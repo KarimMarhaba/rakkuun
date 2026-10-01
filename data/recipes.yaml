@@ -5,14 +5,15 @@
 
 # --- Standard aus Plan v6 --------------------------------------------------
 oatmeal:
-  name: Oatmeal mit Erdnussmus und Banane
+  name: Schoko-Oatmeal mit Banane, Erdnussmus und Zimt
   mahlzeit: fruehstueck
   active_minutes: 4
   zero_prep: true
   anleitung: >-
-    Haferflocken + Milch in großer Schüssel 2 × 90 Sek. Mikrowelle (dazwischen rühren).
-    Erdnussmus einrühren, Banane mit der Gabel reinquetschen.
-  ingredients: {haferflocken: 100, h_vollmilch: 300, erdnussmus: 20, banane: 120}
+    Banane in einer großen Schüssel mit der Gabel zerdrücken, Haferflocken, Milch, 1 EL Kakao,
+    Zimt und eine Prise Salz dazu, 2 × 90 Sek. Mikrowelle (dazwischen rühren) – gekocht wird die
+    Banane deutlich süßer. Dann 1 TL Agavendicksaft und das Erdnussmus einrühren.
+  ingredients: {haferflocken: 100, h_vollmilch: 300, erdnussmus: 20, banane: 120, agavendicksaft: 10, backkakao: 10}
 
 nudeln_tomate_huelsen:
   name: Nudeln mit Tomatensauce und Hülsenfrüchten

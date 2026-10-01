@@ -90,6 +90,9 @@ Fragen einzeln oder in kleinen Gruppen stellen und Antworten zusammenfassen.
   Anfragen). Neue Zutaten immer mit echtem MyTime-Produkt zuordnen und Kaufregeln prüfen.
 - Postleitzahl: `einstellungen.yaml` → `bestellung.postleitzahl`.
 - Zugangsdaten nur aus Umgebungsvariablen lesen, nie ausgeben, nie committen.
+- MyTime verträgt keine zwei gleichzeitigen Sitzungen am Warenkorb: Während die Automatik läuft, darf der
+  Nutzer den Warenkorb nicht in App/Browser öffnen, sonst überschreibt eine Sitzung die andere. Dem Nutzer
+  vor jedem Lauf Bescheid sagen und nach dem Lauf melden, dass er wieder darf.
 - Headless-Chromium braucht hier `--ignore-certificate-errors-spki-list=<SPKI-Hash von /root/.ccr/agent-proxy-ca.crt>`
   und `proxy: { server: HTTPS_PROXY }` – das vertraut gezielt nur der Proxy-CA.
 
