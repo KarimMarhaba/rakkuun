@@ -12,7 +12,7 @@ from .data import Catalog
 from .nutrition import nutrients
 from .plan import Day, Week, day_grams, meal_grams
 from .rules import LABELS, Finding, current_weight
-from .shopping import ShoppingPlan
+from .shopping import ShoppingPlan, weekly_cost
 
 MEAL_LABELS = {"fruehstueck": "Frühstück", "mittag": "Mittag", "abend": "Abend", "snack": "Abendsnack",
                "extra": "Extra"}
@@ -98,6 +98,10 @@ tr:last-child td { border-bottom: 0; }
 .rule { display: block; font-size: 13px; color: var(--muted); }
 tfoot td { font-weight: 700; border-top: 2px solid var(--line); }
 .note { font-size: 14px; color: var(--muted); }
+.product { display: block; font-weight: 700; }
+.flag { display: block; margin-top: 6px; font-size: 13px; padding: 6px 8px; border-radius: 6px;
+        border-left: 3px solid currentColor; }
+.flag.pruefen { color: var(--warn); } .flag.fehlt { color: var(--bad); }
 
 .habits { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
 .weight svg { width: 100%; height: auto; display: block; }
@@ -225,11 +229,18 @@ def _shopping_html(catalog: Catalog, week: Week, shopping: ShoppingPlan) -> str:
     for delivery in shopping.deliveries:
         rows = []
         for line in delivery.lines:
-            rule = f'<span class="rule">{escape(line.kaufregel)}</span>' if line.kaufregel else ""
-            rows.append(f'<tr><td>{escape(line.name)}<span class="rule num">{line.grams_needed:.0f} g pro Woche</span>'
-                        f'{rule}</td><td class="r num">{line.packages}×</td><td class="r num">{line.total_eur:.2f} €</td></tr>')
+            product = (f'<span class="product">{escape(line.product)}</span>' if line.product
+                       else '<span class="product bad-t">Kein MyTime-Produkt zugeordnet</span>')
+            flag = ""
+            if line.status in ("pruefen", "fehlt"):
+                label = "Bitte entscheiden" if line.status == "pruefen" else "Fehlt bei MyTime"
+                flag = f'<span class="flag {line.status}">{label}: {escape(line.hinweis)}</span>'
+            price = f"{line.total_eur:.2f} €" if line.product else "–"
+            rows.append(f'<tr><td>{product}<span class="rule">{escape(line.name)} · '
+                        f'<span class="num">{line.grams_needed:.0f} g pro Woche</span></span>{flag}</td>'
+                        f'<td class="r num">{line.packages}×</td><td class="r num">{price}</td></tr>')
         for line in delivery.filler:
-            rows.append(f'<tr><td>{escape(line.name)} <span class="muted">(Vorrat)</span></td>'
+            rows.append(f'<tr><td>{escape(line.product or line.name)} <span class="muted">(Vorrat)</span></td>'
                         f'<td class="r num">{line.packages}×</td><td class="r num">{line.total_eur:.2f} €</td></tr>')
         minimum = catalog.ordering["mindestbestellwert_eur"]
         parts.append(f"""
@@ -248,7 +259,9 @@ def _shopping_html(catalog: Catalog, week: Week, shopping: ShoppingPlan) -> str:
             first.setdefault(ingredient_id, week.days[d].weekday)
         notes += [f"{escape(catalog.ingredients[i].name)} ist ab {wd} evtl. sehr reif – z. B. eingefroren ins Oatmeal."
                   for i, wd in first.items()]
-    notes.append("Preise sind Schätzungen; die echten MyTime-Preise kommen mit der Shop-Anbindung.")
+    open_items = [l for d in shopping.deliveries for l in d.lines if l.status != "ok"]
+    notes.append("Preise und Produkte von mytime.de (abgefragt ohne Login, Lieferregion kann abweichen)."
+                 + (f" {len(open_items)} Artikel brauchen noch deine Entscheidung." if open_items else ""))
     if catalog.ordering.get("bestaetigung_erforderlich", True):
         notes.append("Bestellt wird erst nach deiner Bestätigung.")
     return "".join(parts) + "".join(f'<p class="note">{n}</p>' for n in notes)
@@ -312,6 +325,7 @@ def render_site(catalog: Catalog, week: Week, findings: list[Finding], shopping:
       <span>Ziel <b class="num">{'–'.join(str(v) for v in catalog.rules.get('zielgewicht_kg', []))} kg</b></span>
       <span>Hülsenfrucht der Woche <b>{escape(legume)}</b></span>
       <span>Handarbeit <b class="num">{total_minutes} Min/Tag</b></span>
+      <span>Verbrauch <b class="num">≈ {weekly_cost(catalog, week):.0f} €/Woche</b></span>
     </div>
     {status}
   </header>

@@ -71,6 +71,18 @@ Fragen einzeln oder in kleinen Gruppen stellen und Antworten zusammenfassen.
 - `.claude/settings.json` und `scripts/hooks/` nicht ändern, außer der Nutzer verlangt es ausdrücklich.
 - Nie ohne Bestätigung des Nutzers bestellen (`bestaetigung_erforderlich`).
 
+## MyTime
+
+- Jede Zutat in `ingredients.yaml` hat ein `mytime`-Feld: zugeordnetes Produkt (`sku`, `name`, `weight`,
+  `step` = Mindest-/Schrittmenge) und `status`: `ok`, `pruefen` (Nutzer muss entscheiden) oder `fehlt`.
+  `package_g`/`price_eur` entsprechen dem zugeordneten Produkt.
+- Produktsuche: `rakkuun/mytime.py` (nur öffentliche Such-/Produktseiten, nicht `/api/`, mit Pause zwischen
+  Anfragen). Neue Zutaten immer mit echtem MyTime-Produkt zuordnen und Kaufregeln prüfen.
+- Postleitzahl: `einstellungen.yaml` → `bestellung.postleitzahl`.
+- Zugangsdaten nur aus Umgebungsvariablen lesen, nie ausgeben, nie committen.
+- Headless-Chromium braucht hier `--ignore-certificate-errors-spki-list=<SPKI-Hash von /root/.ccr/agent-proxy-ca.crt>`
+  und `proxy: { server: HTTPS_PROXY }` – das vertraut gezielt nur der Proxy-CA.
+
 ## Übersichtsseite
 
 Der Nutzer schaut sich den Plan auf der privaten Seite **https://claude.ai/artifact/8Niq5kFh6QGfyUntiBhhFW** an.

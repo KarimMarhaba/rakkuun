@@ -23,6 +23,10 @@ class OrderLine:
     packages: int
     price_eur: float
     kaufregel: str = ""
+    sku: str = ""
+    product: str = ""      # Produktname bei MyTime
+    status: str = "offen"  # ok | pruefen | fehlt | offen
+    hinweis: str = ""
 
     @property
     def total_eur(self) -> float:
@@ -67,8 +71,11 @@ def daily_demand(catalog: Catalog, week: Week) -> dict[str, dict[int, float]]:
 
 def _line(catalog: Catalog, ingredient_id: str, grams: float, packages: int) -> OrderLine:
     ing = catalog.ingredients[ingredient_id]
+    step = ing.mytime_step
+    packages = math.ceil(packages / step) * step  # manche Artikel gibt es nur in Zweierschritten
     return OrderLine(ingredient_id, ing.name, ing.mytime_query, round(grams, 1), packages,
-                     ing.price_eur, ing.kaufregel)
+                     ing.price_eur, ing.kaufregel, ing.mytime.get("sku", ""), ing.mytime.get("name", ""),
+                     ing.mytime_status, ing.mytime.get("hinweis", ""))
 
 
 def _build_delivery(catalog: Catalog, day: int, grams: dict[str, float]) -> Delivery:
@@ -118,7 +125,7 @@ def _fill_to_minimum(catalog: Catalog, week: Week, delivery: Delivery, minimum: 
         ing = staples[i % len(staples)]
         existing = next((l for l in delivery.filler if l.ingredient_id == ing.id), None)
         if existing:
-            existing.packages += 1
+            existing.packages += ing.mytime_step
         else:
             delivery.filler.append(_line(catalog, ing.id, 0, 1))
         i += 1
@@ -135,6 +142,16 @@ def _pantry_after(catalog: Catalog, week: Week, deliveries: list[Delivery]) -> d
             stock[ingredient_id] -= grams
     return {i: round(g) for i, g in sorted(stock.items())
             if g >= 1 and catalog.ingredients[i].shelf_life_days >= LONG_LIFE_DAYS}
+
+
+def weekly_cost(catalog: Catalog, week: Week) -> float:
+    """Was die Woche tatsächlich verbraucht (anteilig pro Packung) – ohne Vorratskäufe."""
+    total = 0.0
+    for day in week.days:
+        for ingredient_id, grams in day_grams(catalog, day).items():
+            ing = catalog.ingredients[ingredient_id]
+            total += grams / ing.package_g * ing.price_eur
+    return round(total, 2)
 
 
 def build_shopping_plan(catalog: Catalog, week: Week) -> ShoppingPlan:

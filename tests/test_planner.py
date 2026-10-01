@@ -282,3 +282,34 @@ def test_approved_edit_becomes_new_baseline(repo):
     assert run_hook("regeln_schuetzen.py", edit, repo).returncode == 0
     assert run_hook("regeln_schuetzen.py", bash, repo).returncode == 0
     assert rules.read_text(encoding="utf-8") == changed
+
+
+# --- MyTime-Zuordnung --------------------------------------------------------
+
+def test_every_planned_ingredient_has_a_mytime_decision():
+    catalog = load_catalog()
+    week = generate_week(catalog, 0)
+    used = {i for d in week.days for i in day_grams(catalog, d)}
+    for ingredient_id in used:
+        assert catalog.ingredients[ingredient_id].mytime_status in ("ok", "pruefen", "fehlt"), ingredient_id
+
+
+def test_packages_respect_mytime_step(data):
+    ingredients = yaml.safe_load((data / "ingredients.yaml").read_text(encoding="utf-8"))
+    ingredients["creme_fraiche"]["mytime"]["step"] = 2
+    (data / "ingredients.yaml").write_text(yaml.safe_dump(ingredients, allow_unicode=True), encoding="utf-8")
+    catalog = load_catalog(data)
+    line = next(l for d in build_shopping_plan(catalog, generate_week(catalog, 0)).deliveries
+                for l in d.lines if l.ingredient_id == "creme_fraiche")
+    assert line.packages == 2
+
+
+def test_parse_mytime_search_result():
+    from rakkuun.mytime import parse_search, parse_weight
+    page = (ROOT / "tests" / "fixtures" / "mytime_suche.html").read_text(encoding="utf-8")
+    products = parse_search(page)
+    assert [p.sku for p in products] == ["4503062596", "4503062101"]
+    assert products[0].name == "Milram Magerquark"
+    assert products[0].price_eur == 1.69 and products[0].grams == 500
+    assert products[1].step == 2
+    assert parse_weight("4 x 125 g") == 500 and parse_weight("1 l") == 1000 and parse_weight("10 St.") is None

@@ -24,6 +24,15 @@ class Ingredient:
     staple: bool = False
     tags: tuple[str, ...] = ()
     kaufregel: str = ""
+    mytime: dict = field(default_factory=dict, hash=False, compare=False)  # zugeordnetes MyTime-Produkt
+
+    @property
+    def mytime_step(self) -> int:
+        return int(self.mytime.get("step", 1))
+
+    @property
+    def mytime_status(self) -> str:
+        return self.mytime.get("status", "offen")
 
 
 @dataclass(frozen=True)
