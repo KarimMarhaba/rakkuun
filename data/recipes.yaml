@@ -70,7 +70,7 @@ skyr_walnuss_snack:
   active_minutes: 1
   zero_prep: true
   anleitung: Skyr in eine Schüssel, Beeren (gefroren oder angetaut), Walnüsse und Leinsamen drüber, 5 g Kreatin einrühren.
-  ingredients: {skyr: 300, walnuesse: 40, leinsamen: 10, tk_beeren: 100}
+  ingredients: {skyr: 300, walnuesse: 40, leinsamen: 10, tk_beeren: 150}
 
 clementinen_obst:
   name: 2 Clementinen zwischendurch
