@@ -101,3 +101,17 @@ def book(stock: Stock, catalog: Catalog, additions: dict[str, float], on: date |
     for ingredient_id, grams in additions.items():
         current[ingredient_id] = grams if absolute else current.get(ingredient_id, 0.0) + grams
     return Stock(on, {i: g for i, g in current.items() if g >= 1})
+
+
+def schedule_from_last_delivery(delivered: date | None, today: date, cover: int = 7,
+                                lead: int = 2) -> tuple[date, date, bool]:
+    """Liefertermin und Befüll-Tag aus der letzten Lieferung.
+
+    Eine Lieferung deckt `cover` Tage; die nächste soll am letzten Tag kommen, an dem noch etwas da ist.
+    Rückgabe: (nächste Lieferung, Tag zum Befüllen des Warenkorbs, ob noch Vorrat aus der letzten Lieferung da ist).
+    """
+    if delivered and delivered + timedelta(days=cover - 1) > today:
+        delivery = delivered + timedelta(days=cover - 1)
+        return delivery, delivery - timedelta(days=lead), True
+    delivery = today + timedelta(days=1)
+    return delivery, today, False

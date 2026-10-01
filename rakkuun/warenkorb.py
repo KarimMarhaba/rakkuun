@@ -75,6 +75,33 @@ class MyTimeShop:
             consent.first.click()          # nur notwendige Cookies
             self.page.wait_for_timeout(500)
 
+    def _relogin_if_asked(self) -> None:
+        """Manche Kontoseiten verlangen eine erneute Anmeldung."""
+        if self.page.locator("#login-username").count() and self.page.locator("#login-username").first.is_visible():
+            self.page.fill("#login-username", os.environ["MYTIME_EMAIL"])
+            self.page.fill("#login-password", os.environ["MYTIME_PSWD"])
+            self.page.click("form[action*='login'] button[type=submit]")
+            self.page.wait_for_load_state("domcontentloaded")
+            self.page.wait_for_timeout(2500)
+
+    def last_order(self) -> dict | None:
+        """Letzte Bestellung: Nummer, Bestelldatum, Status und Lieferdatum (aus 'Meine Bestellungen')."""
+        from datetime import datetime
+        self._goto("/account/orders")
+        self._relogin_if_asked()
+        text = self.page.inner_text("body")
+        m = re.search(r"(\d{10})\s+(\d{2}\.\d{2}\.\d{4})\s+([^\t\n]+?)\s+[\d.,]+\s*€", text)
+        if not m:
+            return None
+        number, ordered, status = m.group(1), m.group(2), m.group(3).strip()
+        self._goto(f"/account/orders/{number}")
+        self._relogin_if_asked()
+        detail = self.page.inner_text("body")
+        d = re.search(r"Lieferdatum\s+(\d{2}\.\d{2}\.\d{4})", detail)
+        parse = lambda x: datetime.strptime(x, "%d.%m.%Y").date()
+        return {"nummer": number, "bestellt": parse(ordered), "status": status,
+                "lieferung": parse(d.group(1)) if d else None}
+
     def login(self) -> None:
         email, password = os.environ.get("MYTIME_EMAIL"), os.environ.get("MYTIME_PSWD")
         if not email or not password:
@@ -121,7 +148,11 @@ class MyTimeShop:
                 field_ = form.locator("input[name=quantity]")
                 field_.fill(str(quantity))
                 form.locator("button[data-add-to-cart]").click()
-                self.page.wait_for_timeout(2000)
+                try:  # warten, bis der Shop den Warenkorb aktualisiert hat
+                    self.page.wait_for_load_state("networkidle", timeout=10000)
+                except Exception:
+                    pass
+                self.page.wait_for_timeout(1500)
                 return
         raise LookupError("Artikel in der Suche nicht gefunden")
 
