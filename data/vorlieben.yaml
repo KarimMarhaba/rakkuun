@@ -5,4 +5,4 @@ jeden_tag_gleich: true   # jeder Wochentag identisch; Abwechslung nur von Woche 
 abneigungen: []          # Zutat-IDs, die nie im Plan landen dürfen, z. B. [kidneybohnen]
 tausch: {}               # dauerhafte 1:1-Ersetzungen, z. B. {tk_brokkoli: tk_spinat}
 notizen:
-  - "Bananen notfalls vor Ort kaufen – keine Extra-Bestellung dafür"
+  - "Alles für 7 Tage mitbestellen, auch Bananen – nichts vor Ort kaufen, keine Extra-Bestellung. Was zu reif wird, anders verwerten (z. B. einfrieren für Oatmeal)."

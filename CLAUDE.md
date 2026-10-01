@@ -6,8 +6,8 @@ Plan an – **ohne jemals eine Grundregel zu verletzen**.
 
 Kontext: 65 kg, Ziel 75–80 kg (moderater Aufbau), fast täglich Gym (aktuell kein Basketball),
 Zero-Prep-Gerichte gewünscht (nichts schneiden, ~15 Min Handarbeit/Tag). **Jeder Wochentag
-ist identisch** – Abwechslung nur von Woche zu Woche. Eine Bestellung pro Woche; was bis zum
-Wochenende verdirbt (Bananen), wird bei Bedarf vor Ort gekauft. Grundlage sind die
+ist identisch** – Abwechslung nur von Woche zu Woche. Eine Bestellung pro Woche, alles für 7 Tage – nichts vor Ort kaufen;
+was zu reif wird (Bananen), wird anders verwertet. Grundlage sind die
 Tages-Ernährungspläne v5/v6 (`docs/plaene/`); v6 ist der aktuelle Standard, aber schon älter
 und soll überarbeitet werden (siehe „Plan-Review“).
 
@@ -71,6 +71,12 @@ Fragen einzeln oder in kleinen Gruppen stellen und Antworten zusammenfassen.
 - `.claude/settings.json` und `scripts/hooks/` nicht ändern, außer der Nutzer verlangt es ausdrücklich.
 - Nie ohne Bestätigung des Nutzers bestellen (`bestaetigung_erforderlich`).
 
+## Übersichtsseite
+
+Der Nutzer schaut sich den Plan auf der privaten Seite **https://claude.ai/artifact/8Niq5kFh6QGfyUntiBhhFW** an.
+Nach jeder Änderung am Plan: `python -m rakkuun seite` und `build/plan.html` mit dem Artifact-Tool
+an **genau diese URL** (`url`-Parameter) veröffentlichen – keine neue Seite anlegen.
+
 ## Befehle
 
 ```bash
@@ -78,5 +84,6 @@ python -m rakkuun woche [--kw N]    # Plan + Regelprüfung + MyTime-Bestellvorsc
 python -m rakkuun pruefen [--alle]  # alle Rotationswochen gegen Grundregeln (Exit 1 bei Verstoß)
 python -m rakkuun gewicht 65.4      # Gewicht eintragen
 python -m rakkuun vorrat-buchen     # nach bestätigter Bestellung Vorrat fortschreiben
+python -m rakkuun seite             # Übersichtsseite nach build/plan.html
 python -m pytest -q                 # Tests
 ```

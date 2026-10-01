@@ -27,11 +27,16 @@ Gewicht + Vorrat ───────────┘                  (❌ = St
   von Woche zu Woche (z. B. wechselt die Hülsenfrucht). Spieltage und leichte Tage sind
   vorbereitet, aber aktuell aus.
 - **Einkauf**: Eine Bestellung pro Woche. Der Vorrat wird abgezogen und alles auf Packungen
-  gerundet. Was bis zum Verbrauch nicht frisch bleibt (Bananen fürs Wochenende), kommt auf
-  eine „Vor Ort kaufen“-Liste. Liegt der Warenkorb unter 70 €, wird mit lange haltbaren
+  gerundet. Alles wird für 7 Tage bestellt; was bis zum Wochenende sehr reif
+  wird (Bananen), ist markiert. Liegt der Warenkorb unter 70 €, wird mit lange haltbaren
   Artikeln aus dem Plan aufgefüllt, und der Rest wird als Vorrat verbucht.
 - **Plan-Review**: In einer eigenen Claude-Session „Lass uns den Ernährungsplan überarbeiten“
   sagen. Der Ablauf steht in `CLAUDE.md`, die Original-Pläne liegen in `docs/plaene/`.
+
+## Übersichtsseite
+
+Plan, Nährwerte, Einkaufsliste und Gewicht zum Ansehen: https://claude.ai/artifact/8Niq5kFh6QGfyUntiBhhFW
+(privat, erzeugt mit `python -m rakkuun seite`).
 
 ## Stand
 
@@ -48,5 +53,6 @@ pip install -r requirements.txt
 python -m rakkuun woche             # Plan + Prüfung + Bestellvorschlag für nächste Woche
 python -m rakkuun pruefen --alle    # Grundregeln für alle Rotationswochen prüfen
 python -m rakkuun gewicht 65.4      # Gewicht eintragen
+python -m rakkuun seite             # Übersichtsseite nach build/plan.html
 python -m pytest -q
 ```

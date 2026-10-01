@@ -4,6 +4,7 @@
   python -m rakkuun pruefen             Alle Wochen der Rotation gegen die Grundregeln prüfen
   python -m rakkuun gewicht 65.4        Gewicht eintragen (1× pro Woche, morgens, nüchtern)
   python -m rakkuun vorrat-buchen       Nach bestätigter Bestellung den Vorrat fortschreiben
+  python -m rakkuun seite               Übersichtsseite (HTML) nach build/plan.html schreiben
 """
 
 from __future__ import annotations
@@ -72,6 +73,19 @@ def cmd_vorrat_buchen(args) -> int:
     return 0
 
 
+def cmd_seite(args) -> int:
+    from .site import render_site
+    catalog = load_catalog(args.data)
+    week = generate_week(catalog, args.kw or _next_week())
+    findings = validate(catalog, week)
+    ok = not any(f.is_error for f in findings)
+    args.out.parent.mkdir(parents=True, exist_ok=True)
+    args.out.write_text(render_site(catalog, week, findings, build_shopping_plan(catalog, week) if ok else None),
+                        encoding="utf-8")
+    print(f"Seite geschrieben: {args.out}")
+    return 0
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(prog="rakkuun", description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -94,6 +108,11 @@ def main() -> None:
     p = sub.add_parser("vorrat-buchen", help="Vorrat nach bestätigter Bestellung fortschreiben")
     p.add_argument("--kw", type=int)
     p.set_defaults(func=cmd_vorrat_buchen)
+
+    p = sub.add_parser("seite", help="Übersichtsseite als HTML erzeugen")
+    p.add_argument("--kw", type=int)
+    p.add_argument("--out", type=Path, default=Path("build/plan.html"))
+    p.set_defaults(func=cmd_seite)
 
     args = parser.parse_args()
     sys.exit(args.func(args))
