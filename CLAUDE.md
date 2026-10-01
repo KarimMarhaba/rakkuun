@@ -102,6 +102,9 @@ Fragen einzeln oder in kleinen Gruppen stellen und Antworten zusammenfassen.
 - `python -m rakkuun vorrat` zeigt Reichweite und den nächsten Liefertermin; `warenkorb` befüllt
   automatisch für diesen Termin (7 Tage ab Liefertag, Vorrat am Liefertag abgezogen).
 - Danach Vorrat committen, damit die nächste Session den Stand kennt.
+- Automatischer Termin: `python -m rakkuun auto` liest die letzte Lieferung aus dem MyTime-Konto
+  (Liefertermin), rechnet 7 Tage Reichweite und befüllt den Warenkorb 2 Tage vor dem nächsten Termin.
+  Kein Eintippen nötig; die Ausgabe `NAECHSTER_LAUF=JJJJ-MM-TT` ist der Tag für den nächsten Termin.
 
 ## Übersichtsseite
 
@@ -121,5 +124,6 @@ python -m rakkuun vorrat-setzen skyr 500          # Bestand korrigieren (Gramm)
 python -m rakkuun geliefert         # befüllten Warenkorb als geliefert buchen
 python -m rakkuun seite             # Übersichtsseite nach build/plan.html
 python -m rakkuun warenkorb         # MyTime-Warenkorb befüllen (bestellt nie; --nur-ansehen)
+python -m rakkuun auto              # nächsten Termin aus letzter Lieferung, ggf. Warenkorb befüllen
 python -m pytest -q                 # Tests
 ```

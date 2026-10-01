@@ -19,6 +19,9 @@ bestellung:
   zweite_lieferung_nach_tagen: 3
   verderbliches_vor_ort_kaufen: false # true = was bis zum Verbrauch nicht frisch bleibt, kommt auf eine "Vor Ort kaufen"-Liste
   bestaetigung_erforderlich: true
+  # MyTime liefert am nächsten Tag (Bestellung bis 14 Uhr), sonst am übernächsten; Verspätungen kommen vor.
+  # 2 Tage Vorlauf: Warenkorb morgens befüllt, vor 14 Uhr bestellt -> Lieferung einen Tag früher als nötig = Puffer.
   vorlauf_tage: 2              # so viele Tage vor dem Liefertermin wird der Warenkorb gefüllt
+  reichweite_tage: 7           # eine Lieferung deckt so viele Tage
   # Hast du zu Hause – wird nicht bestellt. Sag dem Agenten Bescheid, wenn etwas leer wird.
   zu_hause: [olivenoel, passierte_tomaten]

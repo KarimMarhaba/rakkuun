@@ -449,3 +449,13 @@ def test_order_for_delivery_subtracts_projected_stock(data):
     week = generate_week(c, delivery.isocalendar().week)
     lines = {l.ingredient_id for d in build_shopping_plan(c, week).deliveries for l in d.lines}
     assert "basmatireis" not in lines                     # 700 g Wochenbedarf, 1 kg noch da
+
+
+def test_schedule_from_last_delivery():
+    from datetime import date
+    from rakkuun.vorrat import schedule_from_last_delivery as plan
+    # Lieferung Fr 02.10. deckt 7 Tage -> nächste am Do 08.10., Warenkorb am Di 06.10.
+    assert plan(date(2026, 10, 2), date(2026, 10, 3)) == (date(2026, 10, 8), date(2026, 10, 6), True)
+    # letzte Lieferung lange her -> sofort befüllen, Lieferung morgen
+    assert plan(date(2026, 7, 16), date(2026, 10, 1)) == (date(2026, 10, 2), date(2026, 10, 1), False)
+    assert plan(None, date(2026, 10, 1)) == (date(2026, 10, 2), date(2026, 10, 1), False)

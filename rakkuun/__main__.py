@@ -9,6 +9,8 @@
   python -m rakkuun geliefert           Zuletzt befüllten Warenkorb als geliefert buchen
   python -m rakkuun seite               Übersichtsseite (HTML) nach build/plan.html schreiben
   python -m rakkuun warenkorb           MyTime-Warenkorb mit dem Wochenbedarf befüllen (bestellt nicht)
+  python -m rakkuun auto                Aus der letzten MyTime-Lieferung den nächsten Termin berechnen und
+                                        bei Bedarf den Warenkorb befüllen (für den automatischen Termin)
 """
 
 from __future__ import annotations
@@ -189,6 +191,43 @@ def cmd_warenkorb(args) -> int:
     return 1 if result.failed else 0
 
 
+def cmd_auto(args) -> int:
+    """Ohne Eingaben: Die letzte Lieferung deckt 7 Tage. Die nächste soll am Tag davor kommen,
+    der Warenkorb wird `vorlauf_tage` vorher befüllt. Gibt NAECHSTER_LAUF für den Termin aus."""
+    from .vorrat import Stock, catalog_for_delivery, daily_use, schedule_from_last_delivery
+    from .warenkorb import MyTimeShop, fill_cart, render_result
+    catalog = load_catalog(args.data)
+    today = date.today()
+    cover = int(catalog.ordering.get("reichweite_tage", 7))
+    lead = int(catalog.ordering.get("vorlauf_tage", 2))
+    with MyTimeShop() as shop:
+        shop.login()
+        last = shop.last_order()
+    delivered = last["lieferung"] if last and last["lieferung"] else None
+    delivery, fill_on, has_stock = schedule_from_last_delivery(delivered, today, cover, lead)
+    stock = (Stock(delivered, {i: g * cover for i, g in daily_use(catalog).items()}) if has_stock
+             else Stock(today, {}))
+    if last:
+        print(f"Letzte Bestellung {last['nummer']} vom {_datum(last['bestellt'])}, "
+              f"Lieferung {_datum(delivered) if delivered else 'unbekannt'} ({last['status']})")
+    if today < fill_on:
+        print(f"Noch nichts zu tun. Nächste Lieferung am {_datum(delivery)}, Warenkorb wird am {_datum(fill_on)} befüllt.")
+        print(f"NAECHSTER_LAUF={fill_on.isoformat()}")
+        return 0
+    for_delivery = catalog_for_delivery(catalog, stock, delivery)
+    week = generate_week(for_delivery, delivery.isocalendar().week)
+    if any(f.is_error for f in validate(for_delivery, week)):
+        print("❌ Der Plan verstößt gegen Grundregeln – Warenkorb wird nicht befüllt.")
+        print(f"NAECHSTER_LAUF={(today + timedelta(days=1)).isoformat()}")
+        return 1
+    result = fill_cart(for_delivery, build_shopping_plan(for_delivery, week))
+    print(f"Warenkorb für die Lieferung am {_datum(delivery)} befüllt – bitte bis {_datum(delivery - timedelta(days=1))} bestellen.\n")
+    print(render_result(result))
+    # Nach der Bestellung rechnet der nächste Lauf ab dem echten Liefertermin weiter
+    print(f"NAECHSTER_LAUF={(delivery + timedelta(days=cover - 1 - lead)).isoformat()}")
+    return 1 if result.failed else 0
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(prog="rakkuun", description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -226,6 +265,9 @@ def main() -> None:
     p.add_argument("--kw", type=int)
     p.add_argument("--out", type=Path, default=Path("build/plan.html"))
     p.set_defaults(func=cmd_seite)
+
+    p = sub.add_parser("auto", help="nächsten Termin aus der letzten Lieferung berechnen, ggf. Warenkorb befüllen")
+    p.set_defaults(func=cmd_auto)
 
     p = sub.add_parser("warenkorb", help="MyTime-Warenkorb befüllen (bestellt nicht)")
     p.add_argument("--kw", type=int)
