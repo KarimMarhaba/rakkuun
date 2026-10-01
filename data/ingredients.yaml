@@ -1,0 +1,319 @@
+# Zutatenkatalog. Nährwerte pro 100 g essbarer Anteil (Richtwerte nach BLS / typischen
+# Herstellerangaben – bei der MyTime-Anbindung gegen das konkrete Produkt prüfen).
+#
+# package_g        Packungsgröße (essbarer Anteil) in Gramm
+# price_eur        Preis pro Packung (Schätzung, wird später aus MyTime übernommen)
+# shelf_life_days  Wie viele Tage nach Lieferung die Zutat sicher verwendbar ist
+# staple           true = lange haltbar, eignet sich als Vorrat / zum Auffüllen auf den Mindestbestellwert
+# tags             Gruppen, auf die sich Regeln beziehen (z. B. rohes_obst, vitamin_a_gemuese)
+# kaufregel        Worauf bei der Produktauswahl zu achten ist
+# mytime_query     Suchbegriff bzw. später die konkrete Artikel-ID bei MyTime
+
+# --- Frühstück -------------------------------------------------------------
+haferflocken:
+  name: Haferflocken, zart
+  mytime_query: Haferflocken zart
+  package_g: 500
+  price_eur: 0.99
+  shelf_life_days: 180
+  staple: true
+  per_100g: {kcal: 372, protein: 13.5, carbs: 58.7, fat: 7.0, fiber: 10.0, calcium_mg: 54, iron_mg: 4.3, magnesium_mg: 137, zinc_mg: 3.6}
+
+h_vollmilch:
+  name: H-Vollmilch 3,5 %
+  mytime_query: H-Milch 3,5% 1 l
+  package_g: 1000
+  price_eur: 1.19
+  shelf_life_days: 90
+  staple: true
+  kaufregel: H-Milch statt Frischmilch – hält ungeöffnet Wochen, passt zur Wochenbestellung.
+  per_100g: {kcal: 64, protein: 3.3, carbs: 4.8, fat: 3.5, fiber: 0.0, calcium_mg: 120, iron_mg: 0.05, magnesium_mg: 12, zinc_mg: 0.4}
+
+proteinpulver:
+  name: Proteinpulver (Whey), neutral oder Vanille
+  mytime_query: Whey Protein Pulver
+  package_g: 500
+  price_eur: 14.99
+  shelf_life_days: 365
+  staple: true
+  per_100g: {kcal: 380, protein: 75.0, carbs: 8.0, fat: 6.0, fiber: 0.0, calcium_mg: 300, iron_mg: 0.5, magnesium_mg: 50, zinc_mg: 2.0}
+
+erdnussmus:
+  name: Erdnussmus, 100 % Erdnüsse
+  mytime_query: Erdnussmus
+  package_g: 250
+  price_eur: 2.99
+  shelf_life_days: 180
+  staple: true
+  per_100g: {kcal: 610, protein: 25.0, carbs: 12.0, fat: 50.0, fiber: 8.0, calcium_mg: 40, iron_mg: 1.9, magnesium_mg: 170, zinc_mg: 3.0}
+
+paranuesse:
+  name: Paranüsse
+  mytime_query: Paranüsse
+  package_g: 200
+  price_eur: 3.99
+  shelf_life_days: 120
+  staple: true
+  tags: [selen_quelle]
+  per_100g: {kcal: 690, protein: 14.0, carbs: 4.0, fat: 67.0, fiber: 7.5, calcium_mg: 160, iron_mg: 2.4, magnesium_mg: 376, zinc_mg: 4.0}
+
+banane:
+  name: Bananen (ca. 6 Stück)
+  mytime_query: Bananen
+  package_g: 700
+  price_eur: 1.99
+  shelf_life_days: 5
+  per_100g: {kcal: 93, protein: 1.2, carbs: 20.0, fat: 0.2, fiber: 2.0, calcium_mg: 7, iron_mg: 0.4, magnesium_mg: 30, zinc_mg: 0.2}
+
+# --- Mittag ----------------------------------------------------------------
+nudeln:
+  name: Nudeln, Hartweizen (weiß)
+  mytime_query: Spaghetti 500 g
+  package_g: 500
+  price_eur: 0.99
+  shelf_life_days: 365
+  staple: true
+  per_100g: {kcal: 355, protein: 12.5, carbs: 70.0, fat: 1.5, fiber: 3.0, calcium_mg: 20, iron_mg: 1.5, magnesium_mg: 50, zinc_mg: 1.3}
+
+passierte_tomaten:
+  name: Passierte Tomaten
+  mytime_query: Passierte Tomaten 500 g
+  package_g: 500
+  price_eur: 0.79
+  shelf_life_days: 365
+  staple: true
+  per_100g: {kcal: 30, protein: 1.4, carbs: 4.5, fat: 0.2, fiber: 1.2, calcium_mg: 15, iron_mg: 0.6, magnesium_mg: 13, zinc_mg: 0.2}
+
+creme_fraiche:
+  name: Crème fraîche (auch laktosefrei)
+  mytime_query: Creme fraiche
+  package_g: 200
+  price_eur: 1.29
+  shelf_life_days: 14
+  per_100g: {kcal: 290, protein: 2.4, carbs: 3.0, fat: 30.0, fiber: 0.0, calcium_mg: 80, iron_mg: 0.1, magnesium_mg: 8, zinc_mg: 0.3}
+
+kichererbsen:
+  name: Kichererbsen, Dose (abgetropft)
+  mytime_query: Kichererbsen Dose 400 g
+  package_g: 240
+  price_eur: 0.99
+  shelf_life_days: 365
+  staple: true
+  tags: [huelsenfrucht]
+  per_100g: {kcal: 120, protein: 7.0, carbs: 16.0, fat: 2.5, fiber: 5.5, calcium_mg: 40, iron_mg: 1.5, magnesium_mg: 25, zinc_mg: 1.0}
+
+kidneybohnen:
+  name: Kidneybohnen, Dose (abgetropft)
+  mytime_query: Kidneybohnen Dose 400 g
+  package_g: 250
+  price_eur: 0.89
+  shelf_life_days: 365
+  staple: true
+  tags: [huelsenfrucht]
+  per_100g: {kcal: 105, protein: 7.5, carbs: 14.0, fat: 0.5, fiber: 6.5, calcium_mg: 35, iron_mg: 2.0, magnesium_mg: 30, zinc_mg: 0.8}
+
+weisse_bohnen:
+  name: Weiße Bohnen, Dose (abgetropft)
+  mytime_query: Weiße Bohnen Dose 400 g
+  package_g: 250
+  price_eur: 0.99
+  shelf_life_days: 365
+  staple: true
+  tags: [huelsenfrucht]
+  per_100g: {kcal: 100, protein: 7.0, carbs: 13.0, fat: 0.5, fiber: 6.0, calcium_mg: 60, iron_mg: 1.8, magnesium_mg: 40, zinc_mg: 0.9}
+
+linsen:
+  name: Linsen, Dose (abgetropft)
+  mytime_query: Linsen Dose 400 g
+  package_g: 265
+  price_eur: 0.99
+  shelf_life_days: 365
+  staple: true
+  tags: [huelsenfrucht]
+  per_100g: {kcal: 95, protein: 7.5, carbs: 12.5, fat: 0.5, fiber: 5.0, calcium_mg: 20, iron_mg: 2.2, magnesium_mg: 30, zinc_mg: 1.0}
+
+olivenoel:
+  name: Olivenöl, nativ extra
+  mytime_query: Olivenöl nativ extra 500 ml
+  package_g: 460
+  price_eur: 6.99
+  shelf_life_days: 365
+  staple: true
+  per_100g: {kcal: 884, protein: 0.0, carbs: 0.0, fat: 100.0, fiber: 0.0, calcium_mg: 1, iron_mg: 0.6, magnesium_mg: 0, zinc_mg: 0.0}
+
+# --- Abend -----------------------------------------------------------------
+basmatireis:
+  name: Reis (Basmati oder Langkorn)
+  mytime_query: Basmati Reis 1 kg
+  package_g: 1000
+  price_eur: 2.49
+  shelf_life_days: 365
+  staple: true
+  per_100g: {kcal: 350, protein: 7.5, carbs: 78.0, fat: 0.6, fiber: 1.4, calcium_mg: 10, iron_mg: 0.8, magnesium_mg: 25, zinc_mg: 1.1}
+
+tk_erbsen:
+  name: Erbsen, tiefgekühlt
+  mytime_query: Erbsen tiefgekühlt 1 kg
+  package_g: 1000
+  price_eur: 1.99
+  shelf_life_days: 180
+  staple: true
+  tags: [tk_gemuese]
+  kaufregel: Zutatenliste = nur Gemüse, nicht vorgewürzt, 1-kg-Beutel.
+  per_100g: {kcal: 81, protein: 5.4, carbs: 12.0, fat: 0.4, fiber: 5.0, calcium_mg: 25, iron_mg: 1.5, magnesium_mg: 30, zinc_mg: 1.0}
+
+tk_gemuese_mix:
+  name: Gemüsemischung mit Karotte und Paprika, tiefgekühlt
+  mytime_query: Gemüsemischung tiefgekühlt Karotte Paprika
+  package_g: 1000
+  price_eur: 2.49
+  shelf_life_days: 180
+  staple: true
+  tags: [tk_gemuese, vitamin_a_gemuese]
+  kaufregel: Karotte und Paprika müssen in der Zutatenliste stehen. Keine Kartoffeln, keine Sauce, nicht vorgewürzt.
+  per_100g: {kcal: 35, protein: 1.5, carbs: 5.5, fat: 0.3, fiber: 3.0, calcium_mg: 30, iron_mg: 0.6, magnesium_mg: 15, zinc_mg: 0.3}
+
+tk_brokkoli:
+  name: Brokkoli, tiefgekühlt
+  mytime_query: Brokkoli tiefgekühlt
+  package_g: 1000
+  price_eur: 2.49
+  shelf_life_days: 180
+  staple: true
+  tags: [tk_gemuese]
+  per_100g: {kcal: 29, protein: 3.0, carbs: 2.5, fat: 0.2, fiber: 3.0, calcium_mg: 50, iron_mg: 0.7, magnesium_mg: 17, zinc_mg: 0.4}
+
+tk_spinat:
+  name: Blattspinat, tiefgekühlt (ohne Rahm)
+  mytime_query: Blattspinat tiefgekühlt
+  package_g: 750
+  price_eur: 1.99
+  shelf_life_days: 180
+  staple: true
+  tags: [tk_gemuese, vitamin_a_gemuese]
+  kaufregel: Ohne Rahm – Zutatenliste = nur Spinat.
+  per_100g: {kcal: 23, protein: 2.9, carbs: 0.6, fat: 0.4, fiber: 2.2, calcium_mg: 120, iron_mg: 2.7, magnesium_mg: 60, zinc_mg: 0.5}
+
+haehnchengyros_tk:
+  name: Hähnchengyros, tiefgekühlt, portioniert
+  mytime_query: Hähnchen Gyros tiefgekühlt
+  package_g: 500
+  price_eur: 5.99
+  shelf_life_days: 180
+  staple: true
+  tags: [fleisch, mariniert_salzig]
+  kaufregel: Einzeln portioniert gefroren, Protein ≥ 18 g/100 g, kein Formfleisch, bevorzugt Oberschenkel.
+  per_100g: {kcal: 150, protein: 19.0, carbs: 1.5, fat: 8.0, fiber: 0.0, calcium_mg: 15, iron_mg: 1.0, magnesium_mg: 25, zinc_mg: 1.3}
+
+haehnchenbrust_tk:
+  name: Hähnchenbrust natur, tiefgekühlt, einzeln gefroren
+  mytime_query: Hähnchenbrustfilet tiefgekühlt einzeln
+  package_g: 1000
+  price_eur: 8.99
+  shelf_life_days: 180
+  staple: true
+  tags: [fleisch]
+  kaufregel: Einzeln portioniert gefroren, Protein ≥ 18 g/100 g, kein Formfleisch.
+  per_100g: {kcal: 106, protein: 23.0, carbs: 0.0, fat: 1.0, fiber: 0.0, calcium_mg: 12, iron_mg: 0.6, magnesium_mg: 28, zinc_mg: 0.8}
+
+kuerbiskerne:
+  name: Kürbiskerne
+  mytime_query: Kürbiskerne
+  package_g: 200
+  price_eur: 2.49
+  shelf_life_days: 180
+  staple: true
+  per_100g: {kcal: 575, protein: 35.0, carbs: 9.0, fat: 49.0, fiber: 6.0, calcium_mg: 45, iron_mg: 8.8, magnesium_mg: 500, zinc_mg: 7.5}
+
+# --- Abendsnack ------------------------------------------------------------
+griech_joghurt_10:
+  name: Griechischer Joghurt 10 % Fett
+  mytime_query: Griechischer Joghurt 10%
+  package_g: 500
+  price_eur: 2.49
+  shelf_life_days: 21
+  kaufregel: '„Griechischer Joghurt" (abgetropft), NICHT „nach griechischer Art".'
+  per_100g: {kcal: 125, protein: 6.0, carbs: 4.0, fat: 10.0, fiber: 0.0, calcium_mg: 110, iron_mg: 0.1, magnesium_mg: 12, zinc_mg: 0.5}
+
+muesli:
+  name: Müsli (Schokomüsli ist okay)
+  mytime_query: Schoko Müsli
+  package_g: 750
+  price_eur: 2.99
+  shelf_life_days: 180
+  staple: true
+  per_100g: {kcal: 420, protein: 9.0, carbs: 62.0, fat: 13.0, fiber: 7.0, calcium_mg: 60, iron_mg: 3.0, magnesium_mg: 90, zinc_mg: 2.0}
+
+leinsamen:
+  name: Leinsamen, geschrotet
+  mytime_query: Leinsamen geschrotet
+  package_g: 500
+  price_eur: 1.99
+  shelf_life_days: 180
+  staple: true
+  tags: [omega3_ala]
+  per_100g: {kcal: 534, protein: 18.3, carbs: 1.6, fat: 42.0, fiber: 27.0, calcium_mg: 255, iron_mg: 5.7, magnesium_mg: 392, zinc_mg: 4.3}
+
+tk_beeren:
+  name: Beerenmischung, tiefgekühlt
+  mytime_query: Beerenmischung tiefgekühlt
+  package_g: 750
+  price_eur: 3.99
+  shelf_life_days: 180
+  staple: true
+  tags: [rohes_obst]
+  per_100g: {kcal: 45, protein: 0.8, carbs: 7.0, fat: 0.4, fiber: 4.0, calcium_mg: 20, iron_mg: 0.8, magnesium_mg: 15, zinc_mg: 0.2}
+
+rote_bete_saft:
+  name: Rote-Bete-Saft
+  mytime_query: Rote Bete Saft
+  package_g: 750
+  price_eur: 1.99
+  shelf_life_days: 180
+  staple: true
+  tags: [nitrat]
+  per_100g: {kcal: 40, protein: 1.0, carbs: 8.5, fat: 0.0, fiber: 0.0, calcium_mg: 15, iron_mg: 0.5, magnesium_mg: 15, zinc_mg: 0.3}
+
+# --- Alternativen aus Plan v5 ----------------------------------------------
+eier:
+  name: Eier, Freiland, 10 Stück
+  mytime_query: Freilandeier 10er
+  package_g: 550
+  price_eur: 3.29
+  shelf_life_days: 21
+  per_100g: {kcal: 137, protein: 12.9, carbs: 0.7, fat: 9.3, fiber: 0.0, calcium_mg: 55, iron_mg: 1.9, magnesium_mg: 12, zinc_mg: 1.3}
+
+gouda:
+  name: Gouda / Emmentaler, Scheiben
+  mytime_query: Gouda Scheiben
+  package_g: 250
+  price_eur: 2.49
+  shelf_life_days: 30
+  per_100g: {kcal: 360, protein: 25.0, carbs: 0.0, fat: 29.0, fiber: 0.0, calcium_mg: 800, iron_mg: 0.3, magnesium_mg: 30, zinc_mg: 4.0}
+
+vollkornbrot:
+  name: Vollkornbrot
+  mytime_query: Vollkornbrot
+  package_g: 500
+  price_eur: 2.29
+  shelf_life_days: 6
+  kaufregel: Kann eingefroren und scheibenweise getoastet werden.
+  per_100g: {kcal: 220, protein: 7.0, carbs: 40.0, fat: 1.2, fiber: 8.0, calcium_mg: 50, iron_mg: 2.5, magnesium_mg: 60, zinc_mg: 2.0}
+
+skyr:
+  name: Skyr natur
+  mytime_query: Skyr natur
+  package_g: 450
+  price_eur: 1.49
+  shelf_life_days: 21
+  per_100g: {kcal: 63, protein: 11.0, carbs: 4.0, fat: 0.2, fiber: 0.0, calcium_mg: 100, iron_mg: 0.1, magnesium_mg: 11, zinc_mg: 0.5}
+
+makrele_dose:
+  name: Makrele / Sardinen, Dose
+  mytime_query: Makrelenfilets Dose
+  package_g: 125
+  price_eur: 1.49
+  shelf_life_days: 365
+  staple: true
+  tags: [omega3_epa_dha]
+  per_100g: {kcal: 220, protein: 18.0, carbs: 0.0, fat: 16.0, fiber: 0.0, calcium_mg: 30, iron_mg: 1.2, magnesium_mg: 30, zinc_mg: 0.6}

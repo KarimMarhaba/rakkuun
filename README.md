@@ -1,2 +1,58 @@
 # rakkuun
-Automatically shop my meals
+
+Automatically shop my meals – Ernährungsplan nach festen Grundregeln erzeugen, im Gespräch
+an Vorlieben anpassen und die Zutaten automatisch bei [MyTime](https://www.mytime.de) bestellen.
+
+## Wie es funktioniert
+
+```
+Grundregeln (regeln.yaml) ──┐
+Vorlieben (vorlieben.yaml) ─┤
+Wochenvorlage + Rezepte ────┼─▶ Wochenplan ─▶ Regelprüfung ─▶ Einkaufsliste ─▶ Bestätigung ─▶ MyTime
+Gewicht + Vorrat ───────────┘                  (❌ = Stopp)    (Vorrat, 70 €,    (du)
+                                                               Haltbarkeit)
+```
+
+- **Grundregeln** (aus Tages-Ernährungsplan v5/v6): Kalorien je Tagestyp, Protein/Carbs/Fett
+  pro kg Körpergewicht, Ballaststoffe, Calcium, Eisen, Magnesium, Zink, max. 2 Paranüsse,
+  täglich Leinsamen/rohes Obst/Vitamin-A-Gemüse, Gyros max. 4×/Woche, Zero-Prep, ≤ 20 Min
+  Handarbeit, Kalorien-Regel über die Waage und Stellschrauben in fester Reihenfolge.
+- **Vorlieben** änderst du im Gespräch mit Claude in diesem Repo. Die Regeln werden dabei
+  technisch erzwungen:
+  - Nach jeder Änderung an `data/` prüft ein Hook alle Regeln. Bei einem Verstoß muss der
+    Agent eine andere Lösung finden oder dir den Konflikt erklären.
+  - Änderungen an `data/regeln.yaml` gehen nur mit deiner ausdrücklichen Bestätigung.
+  - GitHub Actions prüft jeden Push noch einmal.
+- **Wochenplan**: Ein Tagesplan, der jeden Wochentag gleich läuft. Abwechslung gibt es nur
+  von Woche zu Woche (z. B. wechselt die Hülsenfrucht). Spieltage und leichte Tage sind
+  vorbereitet, aber aktuell aus.
+- **Einkauf**: Eine Bestellung pro Woche. Der Vorrat wird abgezogen und alles auf Packungen
+  gerundet. Alles wird für 7 Tage bestellt; was bis zum Wochenende sehr reif
+  wird (Bananen), ist markiert. Liegt der Warenkorb unter 70 €, wird mit lange haltbaren
+  Artikeln aus dem Plan aufgefüllt, und der Rest wird als Vorrat verbucht.
+- **Plan-Review**: In einer eigenen Claude-Session „Lass uns den Ernährungsplan überarbeiten“
+  sagen. Der Ablauf steht in `CLAUDE.md`, die Original-Pläne liegen in `docs/plaene/`.
+
+## Übersichtsseite
+
+Plan, Nährwerte, Einkaufsliste und Gewicht zum Ansehen: https://claude.ai/artifact/8Niq5kFh6QGfyUntiBhhFW
+(privat, erzeugt mit `python -m rakkuun seite`).
+
+## Stand
+
+1. Grundregeln, Rezepte, Zutaten aus deinem Plan ✅
+2. Wochenplan, Regelprüfung, Einkaufsliste ✅
+3. Gespräch mit dem Agenten + Schutz der Grundregeln ✅ (`CLAUDE.md`, `.claude/settings.json`)
+4. MyTime-Anbindung (Artikel zuordnen, Warenkorb füllen, Bestätigung) – offen
+5. Wöchentliche Automatik – offen
+
+## Nutzung
+
+```bash
+pip install -r requirements.txt
+python -m rakkuun woche             # Plan + Prüfung + Bestellvorschlag für nächste Woche
+python -m rakkuun pruefen --alle    # Grundregeln für alle Rotationswochen prüfen
+python -m rakkuun gewicht 65.4      # Gewicht eintragen
+python -m rakkuun seite             # Übersichtsseite nach build/plan.html
+python -m pytest -q
+```
