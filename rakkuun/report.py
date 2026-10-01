@@ -77,10 +77,13 @@ def render(catalog: Catalog, week: Week, findings: list[Finding], shopping: Shop
         for ingredient_id, grams in shopping.buy_locally.items():
             out.append(f"- {catalog.ingredients[ingredient_id].name}: ca. {grams} g für die letzten Tage der Woche")
     if shopping.spoilage_risks:
-        out += ["", "### ⚠️ Haltbarkeit"]
+        out += ["", "### Zuerst verbrauchen / zu reif → anders verwerten"]
+        by_ingredient: dict[str, list[str]] = {}
         for ingredient_id, day in sorted(shopping.spoilage_risks, key=lambda r: (r[1], r[0])):
-            out.append(f"- {catalog.ingredients[ingredient_id].name}: an Tag {day} "
-                       f"({week.days[day].weekday}) vermutlich nicht mehr frisch")
+            by_ingredient.setdefault(ingredient_id, []).append(week.days[day].weekday)
+        for ingredient_id, weekdays in by_ingredient.items():
+            out.append(f"- {catalog.ingredients[ingredient_id].name}: ab {weekdays[0]} evtl. sehr reif "
+                       "(z. B. eingefroren ins Oatmeal)")
     if catalog.ordering.get("bestaetigung_erforderlich", True):
         out += ["", "_Bestellung wird erst nach deiner Bestätigung abgeschickt._"]
     return "\n".join(out) + "\n"

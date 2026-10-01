@@ -16,5 +16,5 @@ bestellung:
   mindestbestellwert_eur: 70.0 # MyTime
   max_lieferungen_pro_woche: 1 # keine Extra-Bestellung für Frisches
   zweite_lieferung_nach_tagen: 3
-  verderbliches_vor_ort_kaufen: true  # was bis zum Verbrauch nicht frisch bleibt, kommt auf die "Vor Ort kaufen"-Liste
+  verderbliches_vor_ort_kaufen: false # true = was bis zum Verbrauch nicht frisch bleibt, kommt auf eine "Vor Ort kaufen"-Liste
   bestaetigung_erforderlich: true

@@ -155,15 +155,24 @@ def test_unknown_references_are_rejected(data):
 
 # --- Einkauf -----------------------------------------------------------------
 
-def test_single_delivery_and_late_bananas_bought_locally():
+def test_single_delivery_orders_bananas_for_whole_week():
     catalog = load_catalog()
     shopping = build_shopping_plan(catalog, generate_week(catalog, 0))
     assert len(shopping.deliveries) == 1
-    assert not shopping.spoilage_risks
-    # Liefertag Mo, Bananen halten 5 Tage -> Sa + So vor Ort
-    assert shopping.buy_locally == {"banane": 240}
+    assert shopping.buy_locally == {}
     line = next(l for l in shopping.deliveries[0].lines if l.ingredient_id == "banane")
-    assert line.grams_needed == 600
+    assert line.grams_needed == 7 * 120
+    # Liefertag Mo, Bananen halten 5 Tage -> Sa + So werden als "sehr reif" markiert
+    assert sorted(d for i, d in shopping.spoilage_risks if i == "banane") == [5, 6]
+
+
+def test_local_buying_can_be_switched_on(data):
+    ordering = yaml.safe_load((data / "einstellungen.yaml").read_text(encoding="utf-8"))["bestellung"]
+    ordering["verderbliches_vor_ort_kaufen"] = True
+    edit(data, "einstellungen.yaml", bestellung=ordering)
+    catalog = load_catalog(data)
+    shopping = build_shopping_plan(catalog, generate_week(catalog, 0))
+    assert shopping.buy_locally == {"banane": 240}
 
 
 def test_every_delivery_meets_minimum_order():
