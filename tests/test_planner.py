@@ -392,3 +392,60 @@ def test_fill_cart_adds_only_what_is_missing(monkeypatch):
     fake.calls.clear()
     wk.fill_cart(catalog, shopping)
     assert fake.calls == []
+
+
+# --- Vorratsplanung -----------------------------------------------------------
+
+def test_next_delivery_comes_the_day_before_first_item_runs_out():
+    from datetime import date
+    from rakkuun.vorrat import Stock, daily_use, next_delivery
+    catalog = load_catalog()
+    use = daily_use(catalog)
+    today = date(2026, 10, 5)
+    # Von allem 10 Tage Vorrat, nur Skyr reicht 3 Tage
+    grams = {i: g * 10 for i, g in use.items()}
+    grams["skyr"] = use["skyr"] * 3
+    plan = next_delivery(catalog, Stock(today, grams), today)
+    assert plan.limiting == ["skyr"]
+    assert plan.run_out["skyr"] == date(2026, 10, 8)
+    assert plan.delivery == date(2026, 10, 7)
+    assert plan.fill_cart_on == date(2026, 10, 5)        # 2 Tage Vorlauf
+
+
+def test_items_from_home_do_not_trigger_a_delivery():
+    from datetime import date
+    from rakkuun.vorrat import Stock, daily_use, next_delivery
+    catalog = load_catalog()
+    use = daily_use(catalog)
+    today = date(2026, 10, 5)
+    grams = {i: g * 10 for i, g in use.items()}
+    grams["olivenoel"] = 0                                # leer, kommt aber von zu Hause
+    plan = next_delivery(catalog, Stock(today, grams), today)
+    assert "olivenoel" not in plan.limiting
+
+
+def test_booking_purchases_and_projection():
+    from datetime import date
+    from rakkuun.vorrat import Stock, book, daily_use, project
+    catalog = load_catalog()
+    use = daily_use(catalog)
+    start = Stock(date(2026, 10, 1), {"skyr": 2000})
+    later = book(start, catalog, {"skyr": 500}, on=date(2026, 10, 3))
+    assert later.grams["skyr"] == pytest.approx(2000 - 2 * use["skyr"] + 500)
+    assert project(later, use, date(2026, 10, 4))["skyr"] == pytest.approx(later.grams["skyr"] - use["skyr"])
+    fixed = book(later, catalog, {"skyr": 300}, on=date(2026, 10, 4), absolute=True)
+    assert fixed.grams["skyr"] == 300
+
+
+def test_order_for_delivery_subtracts_projected_stock(data):
+    from datetime import date
+    from rakkuun.vorrat import Stock, catalog_for_delivery, daily_use
+    catalog = load_catalog(data)
+    use = daily_use(catalog)
+    delivery = date(2026, 10, 7)
+    stock = Stock(date(2026, 10, 5), {"basmatireis": 2 * use["basmatireis"] + 1000})   # am Liefertag noch 1 kg
+    c = catalog_for_delivery(catalog, stock, delivery)
+    assert c.ordering["liefertag"] == "Mi"
+    week = generate_week(c, delivery.isocalendar().week)
+    lines = {l.ingredient_id for d in build_shopping_plan(c, week).deliveries for l in d.lines}
+    assert "basmatireis" not in lines                     # 700 g Wochenbedarf, 1 kg noch da
