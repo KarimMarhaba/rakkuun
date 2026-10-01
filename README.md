@@ -42,7 +42,7 @@ Plan, Nährwerte, Einkaufsliste und Gewicht als private Übersichtsseite (erzeug
 1. Grundregeln, Rezepte, Zutaten aus deinem Plan ✅
 2. Wochenplan, Regelprüfung, Einkaufsliste ✅
 3. Gespräch mit dem Agenten + Schutz der Grundregeln ✅
-4. MyTime: Artikel zugeordnet mit echten Preisen ✅ · Warenkorb füllen + Bestätigung – offen
+4. MyTime: Artikel mit echten Preisen ✅ · Warenkorb automatisch befüllen ✅ · Bestellen bleibt manuell
 5. Wöchentliche Automatik – offen
 
 ## Nutzung
@@ -53,5 +53,6 @@ python -m rakkuun woche             # Plan + Prüfung + Bestellvorschlag für n�
 python -m rakkuun pruefen --alle    # Grundregeln für alle Rotationswochen prüfen
 python -m rakkuun gewicht 65.4      # Gewicht eintragen
 python -m rakkuun seite             # Übersichtsseite nach build/plan.html
+python -m rakkuun warenkorb         # MyTime-Warenkorb befüllen (bestellt nie; --nur-ansehen)
 python -m pytest -q
 ```
