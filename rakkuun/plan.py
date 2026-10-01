@@ -31,11 +31,14 @@ def generate_week(catalog: Catalog, iso_week: int) -> Week:
     weekdays = WEEKDAYS[start:] + WEEKDAYS[:start]
     game_days = set(settings.get("spieltage", []))
 
-    rotation = template.get("huelsenfrucht_rotation") or []
-    legume = rotation[iso_week % len(rotation)] if rotation else ""
     swaps = dict(catalog.preferences.get("tausch") or {})
-    if legume and legume != "kichererbsen":
-        swaps.setdefault("kichererbsen", legume)
+    dislikes = set(catalog.preferences.get("abneigungen") or [])
+    # Rotation nur über Hülsenfrüchte, die nicht abgelehnt sind (Tausch-Ziele eingerechnet)
+    rotation = [swaps.get(l, l) for l in template.get("huelsenfrucht_rotation") or []]
+    rotation = list(dict.fromkeys(l for l in rotation if l not in dislikes))
+    legume = rotation[iso_week % len(rotation)] if rotation else ""
+    if legume:
+        swaps["kichererbsen"] = legume
 
     # Fleisch verteilen: salzig Mariniertes zuerst auf Spieltage (Natriumverlust), dann Trainingstage
     meat_by_day: dict[str, str] = {}

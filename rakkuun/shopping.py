@@ -23,6 +23,10 @@ class OrderLine:
     packages: int
     price_eur: float
     kaufregel: str = ""
+    sku: str = ""
+    product: str = ""      # Produktname bei MyTime
+    status: str = "offen"  # ok | pruefen | fehlt | offen
+    hinweis: str = ""
 
     @property
     def total_eur(self) -> float:
@@ -49,6 +53,8 @@ class ShoppingPlan:
     pantry_after: dict[str, float] = field(default_factory=dict)
     # Zutat-ID -> Gramm, die nicht bestellt, sondern später vor Ort gekauft werden
     buy_locally: dict[str, float] = field(default_factory=dict)
+    # Zutat-ID -> Gramm Wochenbedarf, den du von zu Hause nimmst (einstellungen: zu_hause)
+    from_home: dict[str, float] = field(default_factory=dict)
 
 
 def daily_demand(catalog: Catalog, week: Week) -> dict[str, dict[int, float]]:
@@ -67,8 +73,11 @@ def daily_demand(catalog: Catalog, week: Week) -> dict[str, dict[int, float]]:
 
 def _line(catalog: Catalog, ingredient_id: str, grams: float, packages: int) -> OrderLine:
     ing = catalog.ingredients[ingredient_id]
+    step = ing.mytime_step
+    packages = math.ceil(packages / step) * step  # manche Artikel gibt es nur in Zweierschritten
     return OrderLine(ingredient_id, ing.name, ing.mytime_query, round(grams, 1), packages,
-                     ing.price_eur, ing.kaufregel)
+                     ing.price_eur, ing.kaufregel, ing.mytime.get("sku", ""), ing.mytime.get("name", ""),
+                     ing.mytime_status, ing.mytime.get("hinweis", ""))
 
 
 def _build_delivery(catalog: Catalog, day: int, grams: dict[str, float]) -> Delivery:
@@ -108,8 +117,9 @@ def _fill_to_minimum(catalog: Catalog, week: Week, delivery: Delivery, minimum: 
         for ingredient_id, grams in day_grams(catalog, day).items():
             weekly[ingredient_id] += grams
     dislikes = set(catalog.preferences.get("abneigungen") or [])
+    at_home = set(catalog.ordering.get("zu_hause") or [])
     staples = [ing for ing in catalog.ingredients.values()
-               if ing.staple and weekly.get(ing.id) and ing.id not in dislikes]
+               if ing.staple and weekly.get(ing.id) and ing.id not in dislikes | at_home]
     staples.sort(key=lambda ing: -weekly[ing.id] / ing.package_g)
     if not staples:
         return
@@ -118,7 +128,7 @@ def _fill_to_minimum(catalog: Catalog, week: Week, delivery: Delivery, minimum: 
         ing = staples[i % len(staples)]
         existing = next((l for l in delivery.filler if l.ingredient_id == ing.id), None)
         if existing:
-            existing.packages += 1
+            existing.packages += ing.mytime_step
         else:
             delivery.filler.append(_line(catalog, ing.id, 0, 1))
         i += 1
@@ -137,11 +147,33 @@ def _pantry_after(catalog: Catalog, week: Week, deliveries: list[Delivery]) -> d
             if g >= 1 and catalog.ingredients[i].shelf_life_days >= LONG_LIFE_DAYS}
 
 
+def weekly_cost(catalog: Catalog, week: Week) -> float:
+    """Was die Woche tatsächlich verbraucht (anteilig pro Packung) – ohne Vorratskäufe."""
+    total = 0.0
+    for day in week.days:
+        for ingredient_id, grams in day_grams(catalog, day).items():
+            ing = catalog.ingredients[ingredient_id]
+            total += grams / ing.package_g * ing.price_eur
+    return round(total, 2)
+
+
 def build_shopping_plan(catalog: Catalog, week: Week) -> ShoppingPlan:
+    plan = _build_shopping_plan(catalog, week)
+    at_home = set(catalog.ordering.get("zu_hause") or [])
+    for day in week.days:
+        for ingredient_id, grams in day_grams(catalog, day).items():
+            if ingredient_id in at_home:
+                plan.from_home[ingredient_id] = plan.from_home.get(ingredient_id, 0) + grams
+    return plan
+
+
+def _build_shopping_plan(catalog: Catalog, week: Week) -> ShoppingPlan:
     ordering = catalog.ordering
     minimum = ordering["mindestbestellwert_eur"]
     second_day = ordering["zweite_lieferung_nach_tagen"]
     demand = daily_demand(catalog, week)
+    for ingredient_id in ordering.get("zu_hause") or []:
+        demand.pop(ingredient_id, None)
 
     one_grams, one_risks = _split(catalog, demand, [0])
     notes: list[str] = []

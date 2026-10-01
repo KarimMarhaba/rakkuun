@@ -24,6 +24,15 @@ class Ingredient:
     staple: bool = False
     tags: tuple[str, ...] = ()
     kaufregel: str = ""
+    mytime: dict = field(default_factory=dict, hash=False, compare=False)  # zugeordnetes MyTime-Produkt
+
+    @property
+    def mytime_step(self) -> int:
+        return int(self.mytime.get("step", 1))
+
+    @property
+    def mytime_status(self) -> str:
+        return self.mytime.get("status", "offen")
 
 
 @dataclass(frozen=True)
@@ -94,7 +103,8 @@ def _check_references(catalog: Catalog) -> None:
     if unknown:
         raise ValueError(f"Wochenvorlage nutzt unbekannte Rezepte: {unknown}")
     ing_refs = (list(t.get("huelsenfrucht_rotation", [])) + list(p.get("abneigungen", []))
-                + list(p.get("tausch", {})) + list(p.get("tausch", {}).values()) + list(catalog.pantry))
+                + list(p.get("tausch", {})) + list(p.get("tausch", {}).values()) + list(catalog.pantry)
+                + list(catalog.ordering.get("zu_hause") or []))
     unknown = sorted({i for i in ing_refs if i not in catalog.ingredients})
     if unknown:
         raise ValueError(f"Unbekannte Zutat-IDs in Vorlage/Vorlieben/Vorrat: {unknown}")
