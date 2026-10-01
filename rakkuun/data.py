@@ -124,9 +124,17 @@ def load_catalog(data_dir: Path = DATA_DIR) -> Catalog:
         template=load_yaml(data_dir / "wochenvorlage.yaml"),
         settings=load_yaml(data_dir / "einstellungen.yaml"),
         preferences=load_yaml(data_dir / "vorlieben.yaml"),
-        pantry={k: float(v) for k, v in load_yaml(data_dir / "vorrat.yaml").items()},
+        pantry={},
         weights={str(k): float(v) for k, v in load_yaml(data_dir / "gewicht.yaml").items()},
         data_dir=data_dir,
     )
+    from .vorrat import daily_use, load_stock, project
+    from datetime import date
+    stock = load_stock(data_dir / "vorrat.yaml")
+    unknown = sorted(set(stock.grams) - set(ingredients))
+    if unknown:
+        raise ValueError(f"Unbekannte Zutat-IDs im Vorrat: {unknown}")
+    if stock.grams:
+        catalog.pantry = {i: g for i, g in project(stock, daily_use(catalog), date.today()).items() if g >= 1}
     _check_references(catalog)
     return catalog

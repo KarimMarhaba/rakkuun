@@ -6,7 +6,7 @@ Plan an – **ohne jemals eine Grundregel zu verletzen**.
 
 Kontext: 25 Jahre, 180 cm, 65 kg, Ziel 75–80 kg (moderater Aufbau), fast täglich Gym (aktuell kein Basketball),
 Zero-Prep-Gerichte gewünscht (nichts schneiden, ~15 Min Handarbeit/Tag). **Jeder Wochentag
-ist identisch** – Abwechslung nur von Woche zu Woche. Eine Bestellung pro Woche, alles für 7 Tage – nichts vor Ort kaufen;
+ist identisch** – Abwechslung nur von Woche zu Woche. Bestellt wird, wenn der Vorrat ausgeht (Lieferung am Tag, bevor die erste Zutat leer ist), jeweils für 7 Tage;
 was zu reif wird (Bananen), wird anders verwertet. Kein Proteinpulver, keine gekochten Eier (B12 per Präparat). Was zu Hause vorhanden ist,
 steht in `einstellungen.yaml` → `bestellung.zu_hause` und wird nicht bestellt. Grundlage sind die
 Tages-Ernährungspläne v5/v6 (`docs/plaene/`); v6 ist der aktuelle Standard, aber schon älter
@@ -93,6 +93,16 @@ Fragen einzeln oder in kleinen Gruppen stellen und Antworten zusammenfassen.
 - Headless-Chromium braucht hier `--ignore-certificate-errors-spki-list=<SPKI-Hash von /root/.ccr/agent-proxy-ca.crt>`
   und `proxy: { server: HTTPS_PROXY }` – das vertraut gezielt nur der Proxy-CA.
 
+## Vorrat und Liefertermin
+
+- `data/vorrat.yaml` hält den Bestand mit Stichtag; der Verbrauch wird aus dem Plan hochgerechnet.
+- Nutzer sagt „hab 2 Skyr gekauft“ → `python -m rakkuun eingekauft skyr 2 --packungen`.
+- Nutzer sagt „ich habe noch etwa 500 g Reis“ → `python -m rakkuun vorrat-setzen basmatireis 500`.
+- Nutzer sagt „Lieferung ist da“ → `python -m rakkuun geliefert` (bucht den zuletzt befüllten Warenkorb).
+- `python -m rakkuun vorrat` zeigt Reichweite und den nächsten Liefertermin; `warenkorb` befüllt
+  automatisch für diesen Termin (7 Tage ab Liefertag, Vorrat am Liefertag abgezogen).
+- Danach Vorrat committen, damit die nächste Session den Stand kennt.
+
 ## Übersichtsseite
 
 Der Nutzer schaut sich den Plan auf der privaten Seite **https://claude.ai/artifact/8Niq5kFh6QGfyUntiBhhFW** an.
@@ -105,7 +115,10 @@ an **genau diese URL** (`url`-Parameter) veröffentlichen – keine neue Seite a
 python -m rakkuun woche [--kw N]    # Plan + Regelprüfung + MyTime-Bestellvorschlag
 python -m rakkuun pruefen [--alle]  # alle Rotationswochen gegen Grundregeln (Exit 1 bei Verstoß)
 python -m rakkuun gewicht 65.4      # Gewicht eintragen
-python -m rakkuun vorrat-buchen     # nach bestätigter Bestellung Vorrat fortschreiben
+python -m rakkuun vorrat            # Bestand, Reichweite, nächster Liefertermin
+python -m rakkuun eingekauft skyr 2 --packungen   # eigenen Einkauf buchen
+python -m rakkuun vorrat-setzen skyr 500          # Bestand korrigieren (Gramm)
+python -m rakkuun geliefert         # befüllten Warenkorb als geliefert buchen
 python -m rakkuun seite             # Übersichtsseite nach build/plan.html
 python -m rakkuun warenkorb         # MyTime-Warenkorb befüllen (bestellt nie; --nur-ansehen)
 python -m pytest -q                 # Tests
