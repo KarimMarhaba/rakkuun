@@ -17,12 +17,14 @@ oatmeal:
 nudeln_tomate_huelsen:
   name: Nudeln mit Tomatensauce und Hülsenfrüchten
   mahlzeit: mittag
-  active_minutes: 2
+  active_minutes: 3
   zero_prep: true
   anleitung: >-
-    Nudeln kochen, Hülsenfrüchte direkt mit in den Topf. Passierte Tomaten dazu,
-    1,5 EL Olivenöl, Jodsalz, Gewürze, optional Hefeflocken.
-  ingredients: {nudeln: 200, passierte_tomaten: 200, kichererbsen: 125, olivenoel: 15}
+    1) Wasser im Wasserkocher kochen, in den Topf, salzen, Nudeln rein (ca. 10 Min).
+    2) Hülsenfrüchte abtropfen und die letzten 2 Minuten mit in den Topf.
+    3) Abgießen, dann passierte Tomaten, einen großzügigen Schuss Kochcreme (kein Abwiegen),
+    1,5 EL Olivenöl, Jodsalz und Gewürze direkt in den Topf, umrühren, 1 Minute warm werden lassen.
+  ingredients: {nudeln: 200, passierte_tomaten: 200, kichererbsen: 125, olivenoel: 15, kochcreme: 40}
   variants:
     leicht: {nudeln: 150}
 
@@ -69,6 +71,14 @@ skyr_walnuss_snack:
   zero_prep: true
   anleitung: Skyr in eine Schüssel, Beeren (gefroren oder angetaut), Walnüsse und Leinsamen drüber, 5 g Kreatin einrühren.
   ingredients: {skyr: 300, walnuesse: 40, leinsamen: 10, tk_beeren: 100}
+
+clementinen_obst:
+  name: 2 Clementinen zwischendurch
+  mahlzeit: extra
+  active_minutes: 0
+  zero_prep: true
+  anleitung: Schälen und essen – z. B. am Nachmittag oder nach dem Training.
+  ingredients: {clementinen: 100}
 
 rote_bete_shot:
   name: Rote-Bete-Saft (2–3 h vor Spiel/Pickup)

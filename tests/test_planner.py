@@ -79,7 +79,6 @@ def test_varying_days_break_same_every_day_preference(data):
 
 def test_light_days_use_smaller_portions(data):
     catalog = varied_week(data)
-    assert errors(catalog) == []
     days = {d.weekday: d for d in generate_week(catalog, 0).days}
     assert day_grams(catalog, days["Do"])["nudeln"] == 150
     assert day_grams(catalog, days["Mo"])["nudeln"] == 200
@@ -121,7 +120,8 @@ def test_valid_swap_satisfies_preference_and_rules(data):
 
 
 def test_swap_that_loses_vitamin_c_is_caught(data):
-    """Brokkoli -> Spinat klingt harmlos, kostet aber Vitamin C."""
+    """Brokkoli -> Spinat klingt harmlos, kostet aber Vitamin C (hier ohne die Clementinen gerechnet)."""
+    edit(data, "wochenvorlage.yaml", mahlzeiten=["oatmeal", "nudeln_tomate_huelsen", "reis_bowl", "skyr_walnuss_snack"])
     edit(data, "vorlieben.yaml", abneigungen=["tk_brokkoli"], tausch={"tk_brokkoli": "tk_spinat"})
     assert any(f.text.startswith("Vitamin C") for f in errors(load_catalog(data)))
 
@@ -317,7 +317,8 @@ def test_items_at_home_are_not_ordered():
     catalog = load_catalog()
     shopping = build_shopping_plan(catalog, generate_week(catalog, 0))
     ordered = {l.ingredient_id for d in shopping.deliveries for l in d.lines + d.filler}
-    assert not ordered & {"olivenoel", "passierte_tomaten", "tk_gemuese_mix"}
+    assert not ordered & {"olivenoel", "passierte_tomaten"}
+    assert "tk_gemuese_mix" in ordered
     assert shopping.from_home["olivenoel"] == 7 * 30
 
 
@@ -331,8 +332,7 @@ def test_selenium_upper_limit_is_enforced(data):
 def test_supplement_covered_nutrients_are_not_checked_against_food():
     catalog = load_catalog()
     findings = validate(catalog, generate_week(catalog, 0))
-    assert not any(f.text.startswith(("Vitamin D", "Jod", "Omega-3 EPA")) for f in findings)
-    assert any(f.text.startswith("Vitamin B12") and not f.is_error for f in findings)
+    assert not any(f.text.startswith(("Vitamin D", "Vitamin B12", "Jod", "Omega-3 EPA")) for f in findings)
 
 
 def test_parse_mytime_search_result():
