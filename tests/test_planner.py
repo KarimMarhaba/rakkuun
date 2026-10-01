@@ -51,8 +51,8 @@ def test_oatmeal_without_protein_powder():
     grams = meal_grams(catalog, "oatmeal", day)
     assert "proteinpulver" not in grams and "paranuesse" not in grams
     values = nutrients(catalog, grams)
-    assert values["kcal"] == pytest.approx(800, rel=0.05)
-    assert values["protein"] == pytest.approx(30, rel=0.05)
+    assert values["kcal"] == pytest.approx(870, rel=0.05)
+    assert values["protein"] == pytest.approx(32, rel=0.05)
 
 
 def varied_week(data):

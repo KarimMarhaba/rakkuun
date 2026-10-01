@@ -76,6 +76,29 @@ banane:
   shelf_life_days: 5
   per_100g: {kcal: 93, protein: 1.2, carbs: 20.0, fat: 0.2, fiber: 2.0, calcium_mg: 7, iron_mg: 0.4, magnesium_mg: 30, zinc_mg: 0.2,
              vitamin_a_ug: 3, vitamin_c_mg: 9, vitamin_d_ug: 0, vitamin_b12_ug: 0, folat_ug: 20, selen_ug: 1, kalium_mg: 360}
+agavendicksaft:
+  name: Agavendicksaft
+  mytime_query: Agavendicksaft
+  mytime: {sku: '4502101322', name: "Jeden Tag Bio Agaven Dicksaft", weight: "500 g", step: 1, status: ok}
+  package_g: 500
+  price_eur: 4.29
+  shelf_life_days: 365
+  staple: true
+  per_100g: {kcal: 310, protein: 0.1, carbs: 76.0, fat: 0.5, fiber: 0.2, calcium_mg: 1, iron_mg: 0.1, magnesium_mg: 1, zinc_mg: 0.0,
+             vitamin_a_ug: 0, vitamin_c_mg: 0, vitamin_d_ug: 0, vitamin_b12_ug: 0, folat_ug: 0, selen_ug: 0, kalium_mg: 4}
+
+backkakao:
+  name: Kakaopulver (ungesüßt)
+  mytime_query: Cebe Cacao Kakaopulver
+  mytime: {sku: '4502090560', name: "Cebe Cacao Kakaopulver", weight: "250 g", step: 1, status: ok}
+  package_g: 250
+  price_eur: 5.29
+  shelf_life_days: 365
+  staple: true
+  kaufregel: Reiner Kakao ohne Zucker – kein Trinkkakao/Instantpulver.
+  per_100g: {kcal: 390, protein: 20.0, carbs: 11.0, fat: 21.0, fiber: 33.0, calcium_mg: 130, iron_mg: 12.0, magnesium_mg: 450, zinc_mg: 6.5,
+             vitamin_a_ug: 0, vitamin_c_mg: 0, vitamin_d_ug: 0, vitamin_b12_ug: 0, folat_ug: 30, selen_ug: 14, kalium_mg: 1500}
+
 # --- Mittag ----------------------------------------------------------------
 nudeln:
   name: Nudeln, Hartweizen (weiß)
