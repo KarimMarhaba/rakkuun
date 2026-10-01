@@ -148,7 +148,11 @@ class MyTimeShop:
                 field_ = form.locator("input[name=quantity]")
                 field_.fill(str(quantity))
                 form.locator("button[data-add-to-cart]").click()
-                self.page.wait_for_timeout(2000)
+                try:  # warten, bis der Shop den Warenkorb aktualisiert hat
+                    self.page.wait_for_load_state("networkidle", timeout=10000)
+                except Exception:
+                    pass
+                self.page.wait_for_timeout(1500)
                 return
         raise LookupError("Artikel in der Suche nicht gefunden")
 
