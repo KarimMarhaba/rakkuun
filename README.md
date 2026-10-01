@@ -17,7 +17,7 @@ Gewicht + Vorrat ───────────┘                  (❌ = St
   pro kg Körpergewicht, Ballaststoffe, Calcium, Eisen, Magnesium, Zink, max. 2 Paranüsse,
   täglich Leinsamen/rohes Obst/Vitamin-A-Gemüse, Gyros max. 4×/Woche, Zero-Prep, ≤ 20 Min
   Handarbeit, Kalorien-Regel über die Waage und Stellschrauben in fester Reihenfolge.
-- **Vorlieben** änderst du im Gespräch mit Claude in diesem Repo. Die Regeln werden dabei
+- **Vorlieben** werden im Gespräch mit dem Ernährungs-Agenten geändert. Die Regeln werden dabei
   technisch erzwungen:
   - Nach jeder Änderung an `data/` prüft ein Hook alle Regeln. Bei einem Verstoß muss der
     Agent eine andere Lösung finden oder dir den Konflikt erklären.
@@ -30,20 +30,19 @@ Gewicht + Vorrat ───────────┘                  (❌ = St
   gerundet. Alles wird für 7 Tage bestellt; was bis zum Wochenende sehr reif
   wird (Bananen), ist markiert. Liegt der Warenkorb unter 70 €, wird mit lange haltbaren
   Artikeln aus dem Plan aufgefüllt, und der Rest wird als Vorrat verbucht.
-- **Plan-Review**: In einer eigenen Claude-Session „Lass uns den Ernährungsplan überarbeiten“
-  sagen. Der Ablauf steht in `CLAUDE.md`, die Original-Pläne liegen in `docs/plaene/`.
+- **Plan-Review**: „Lass uns den Ernährungsplan überarbeiten“ sagen. Der Ablauf steht in der
+  Agenten-Anleitung, die Original-Pläne liegen in `docs/plaene/`.
 
 ## Übersichtsseite
 
-Plan, Nährwerte, Einkaufsliste und Gewicht zum Ansehen: https://claude.ai/artifact/8Niq5kFh6QGfyUntiBhhFW
-(privat, erzeugt mit `python -m rakkuun seite`).
+Plan, Nährwerte, Einkaufsliste und Gewicht als private Übersichtsseite (erzeugt mit `python -m rakkuun seite`).
 
 ## Stand
 
 1. Grundregeln, Rezepte, Zutaten aus deinem Plan ✅
 2. Wochenplan, Regelprüfung, Einkaufsliste ✅
-3. Gespräch mit dem Agenten + Schutz der Grundregeln ✅ (`CLAUDE.md`, `.claude/settings.json`)
-4. MyTime: Artikel zugeordnet mit echten Preisen ✅ · Warenkorb füllen + Bestätigung – offen
+3. Gespräch mit dem Agenten + Schutz der Grundregeln ✅
+4. MyTime: Artikel mit echten Preisen ✅ · Warenkorb automatisch befüllen ✅ · Bestellen bleibt manuell
 5. Wöchentliche Automatik – offen
 
 ## Nutzung
@@ -54,5 +53,6 @@ python -m rakkuun woche             # Plan + Prüfung + Bestellvorschlag für n�
 python -m rakkuun pruefen --alle    # Grundregeln für alle Rotationswochen prüfen
 python -m rakkuun gewicht 65.4      # Gewicht eintragen
 python -m rakkuun seite             # Übersichtsseite nach build/plan.html
+python -m rakkuun warenkorb         # MyTime-Warenkorb befüllen (bestellt nie; --nur-ansehen)
 python -m pytest -q
 ```

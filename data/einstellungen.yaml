@@ -14,7 +14,7 @@ spieltage: []                  # aktuell kein Basketball
 bestellung:
   postleitzahl: "35039"        # Marburg – für Liefergebiet und Lieferslots
   liefertag: Mo                # Tag 0 des Wochenplans
-  mindestbestellwert_eur: 70.0 # MyTime
+  mindestbestellwert_eur: 70.0 # ab 70 € versandkostenfrei (darunter 5,49 € Versand) – Warenkorb wird bis dahin aufgefüllt
   max_lieferungen_pro_woche: 1 # keine Extra-Bestellung für Frisches
   zweite_lieferung_nach_tagen: 3
   verderbliches_vor_ort_kaufen: false # true = was bis zum Verbrauch nicht frisch bleibt, kommt auf eine "Vor Ort kaufen"-Liste

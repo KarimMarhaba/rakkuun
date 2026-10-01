@@ -388,7 +388,7 @@ def render_site(catalog: Catalog, week: Week, findings: list[Finding], shopping:
     <ul class="habits">{habits}</ul>
   </section>
 
-  <footer>Stand {date.today().strftime('%d.%m.%Y')}. Ändern willst du etwas? Sag es deinem Ernährungs-Agenten
-    in Claude – diese Seite zeigt dann den neuen Plan.</footer>
+  <footer>Stand {date.today().strftime('%d.%m.%Y')}. Ändern willst du etwas? Sag es deinem Ernährungs-Agenten –
+    diese Seite zeigt dann den neuen Plan.</footer>
 </main>
 """
