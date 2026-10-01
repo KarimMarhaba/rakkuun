@@ -1,0 +1,103 @@
+# Gerichte. Mengen in Gramm pro Portion.
+# active_minutes  echte Handarbeit (Wartezeit zählt nicht)
+# zero_prep       true = nichts schneiden, nichts vorbereiten
+# variants        Abweichende Mengen je Tagestyp (z. B. leichte Tage)
+
+# --- Standard aus Plan v6 --------------------------------------------------
+oatmeal:
+  name: Oatmeal mit Proteinpulver, Erdnussmus, Paranüssen und Banane
+  mahlzeit: fruehstueck
+  active_minutes: 4
+  zero_prep: true
+  anleitung: >-
+    Haferflocken + Milch in großer Schüssel 2 × 90 Sek. Mikrowelle (dazwischen rühren).
+    Proteinpulver NACH dem Erhitzen einrühren, Erdnussmus einrühren, 2 Paranüsse drauf,
+    Banane mit der Gabel reinquetschen.
+  ingredients: {haferflocken: 100, h_vollmilch: 300, proteinpulver: 30, erdnussmus: 20, paranuesse: 9, banane: 120}
+
+nudeln_tomate_huelsen:
+  name: Nudeln mit Tomatensauce und Hülsenfrüchten
+  mahlzeit: mittag
+  active_minutes: 2
+  zero_prep: true
+  anleitung: >-
+    Nudeln kochen, Hülsenfrüchte direkt mit in den Topf. Passierte Tomaten + 1 EL Crème fraîche,
+    1 EL Olivenöl, Jodsalz, Gewürze, optional Hefeflocken.
+  ingredients: {nudeln: 200, passierte_tomaten: 200, creme_fraiche: 15, kichererbsen: 125, olivenoel: 10}
+  variants:
+    leicht: {nudeln: 150}
+
+reis_bowl:
+  name: Reiskocher-Bowl mit TK-Gemüse
+  mahlzeit: abend
+  active_minutes: 2
+  zero_prep: true
+  anleitung: >-
+    Reis + TK-Gemüse (60 % Erbsen, 30 % Mix, 10 % Brokkoli/Spinat) + Wasser + Gewürze in den
+    Reiskocher. 1 EL Öl erst über die fertige Bowl.
+  ingredients: {basmatireis: 100, tk_erbsen: 180, tk_gemuese_mix: 90, tk_brokkoli: 30, olivenoel: 10}
+  variants:
+    leicht: {basmatireis: 75}
+
+fleisch_gyros:
+  name: Hähnchengyros aus der Heißluftfritteuse
+  mahlzeit: abend
+  active_minutes: 1
+  zero_prep: true
+  anleitung: Gefroren in die Heißluftfritteuse, ca. 18 Min.
+  ingredients: {haehnchengyros_tk: 120}
+
+fleisch_brust:
+  name: Hähnchenbrust natur aus der Heißluftfritteuse
+  mahlzeit: abend
+  active_minutes: 1
+  zero_prep: true
+  anleitung: Gefroren in die Heißluftfritteuse, ca. 18 Min, selbst würzen.
+  ingredients: {haehnchenbrust_tk: 120}
+
+joghurt_snack:
+  name: Griechischer Joghurt mit Müsli, Leinsamen und Beeren
+  mahlzeit: snack
+  active_minutes: 1
+  zero_prep: true
+  anleitung: Alles in eine Schüssel, 5 g Kreatin einrühren.
+  ingredients: {griech_joghurt_10: 200, muesli: 50, leinsamen: 10, tk_beeren: 100}
+
+rote_bete_shot:
+  name: Rote-Bete-Saft (2–3 h vor Spiel/Pickup)
+  mahlzeit: extra
+  active_minutes: 0
+  zero_prep: true
+  ingredients: {rote_bete_saft: 200}
+
+# --- Optionale Extras ------------------------------------------------------
+kerne_topping:
+  name: Kürbiskerne über die Bowl
+  mahlzeit: extra
+  active_minutes: 0
+  zero_prep: true
+  ingredients: {kuerbiskerne: 20}
+
+makrele:
+  name: Makrele/Sardinen direkt aus der Dose (EPA/DHA)
+  mahlzeit: extra
+  active_minutes: 0
+  zero_prep: true
+  ingredients: {makrele_dose: 125}
+
+# --- Alternativen aus Plan v5 ----------------------------------------------
+ruehrei_kaese_brot:
+  name: Rührei mit Käse, Vollkornbrot und Banane
+  mahlzeit: fruehstueck
+  active_minutes: 8
+  zero_prep: true
+  anleitung: 4 Eier + 1 EL Öl (Pfanne oder Mikrowelle ~90 Sek), 30 g Käse drüber, 4 Scheiben Brot, 1 Banane.
+  ingredients: {eier: 220, olivenoel: 10, gouda: 30, vollkornbrot: 200, banane: 120}
+
+skyr_snack:
+  name: Skyr mit Müsli, Erdnussmus, Leinsamen und Beeren
+  mahlzeit: snack
+  active_minutes: 1
+  zero_prep: true
+  anleitung: Alles in eine Schüssel, 5 g Kreatin einrühren.
+  ingredients: {skyr: 200, muesli: 50, erdnussmus: 20, leinsamen: 10, tk_beeren: 100}

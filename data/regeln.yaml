@@ -1,0 +1,92 @@
+# ============================================================================
+#  GRUNDREGELN – die Leitplanken deiner Ernährung (aus Tages-Ernährungsplan v5/v6)
+# ============================================================================
+#  Jeder Plan wird automatisch gegen diese Regeln geprüft.
+#  stufe: fehler  -> Plan wird NICHT übernommen und NICHT bestellt
+#  stufe: hinweis -> Plan geht durch, aber der Agent weist dich darauf hin
+#
+#  Änderungen an dieser Datei nur auf deinen ausdrücklichen Wunsch –
+#  der Agent muss vorher nachfragen (technisch erzwungen, siehe .claude/settings.json).
+# ============================================================================
+
+koerpergewicht_kg: 65          # Fallback, wenn data/gewicht.yaml leer ist
+zielgewicht_kg: [75, 80]
+ziel: moderater Aufbau (+250–350 kcal Überschuss), Kraft und Sprungkraft für Basketball
+
+naehrwerte:                     # pro Tag; *_pro_kg wird mit dem aktuellen Gewicht gerechnet
+  - {naehrstoff: kcal, tagestyp: training, min: 3100, max: 3500, stufe: fehler,
+     grund: "Moderater Aufbau an Kraft-, Power- und Pickup-Tagen (Plan: ~3.100–3.300; Obergrenze mit Spielraum für Schätzwerte, Gyros-Marinade und Rote-Bete-Saft an Spieltagen – feingesteuert wird über die Kalorien-Regel)."}
+  - {naehrstoff: kcal, tagestyp: leicht, min: 2800, max: 3150, stufe: fehler,
+     grund: "Leichte Tage und Ruhetage: weniger Carbs, Protein bleibt voll."}
+  - {naehrstoff: protein, min_pro_kg: 1.8, stufe: fehler,
+     grund: "1,8–2,2 g/kg für Muskelaufbau."}
+  - {naehrstoff: protein, max_pro_kg: 2.5, stufe: hinweis,
+     grund: "Mehr als ~2,2 g/kg bringt keinen zusätzlichen Aufbau, sättigt aber stark."}
+  - {naehrstoff: carbs, min_pro_kg: 5.0, max_pro_kg: 7.0, stufe: fehler,
+     grund: "5–7 g/kg für volle Glykogenspeicher und Trainingsqualität."}
+  - {naehrstoff: fat, min_pro_kg: 1.0, max_pro_kg: 1.7, stufe: fehler,
+     grund: "Fett 1,0–1,7 g/kg."}
+  - {naehrstoff: fiber, min: 30, stufe: fehler,
+     grund: "Mindestens 30 g Ballaststoffe."}
+  - {naehrstoff: fiber, max: 55, stufe: hinweis,
+     grund: "Viel mehr als ~50 g macht Völlegefühl – das ist beim Aufbau der Gegner."}
+  - {naehrstoff: calcium_mg, min: 1000, stufe: fehler,
+     grund: "DGE-Referenzwert. Puffer: calciumreiches Mineralwasser (> 400 mg/l)."}
+  - {naehrstoff: iron_mg, min: 11, stufe: fehler,
+     grund: "DGE-Referenzwert Männer. Vitamin C zur eisenreichen Mahlzeit verbessert die Aufnahme."}
+  - {naehrstoff: magnesium_mg, min: 350, stufe: fehler,
+     grund: "DGE-Referenzwert; hoher Bedarf durch viel Sport."}
+  - {naehrstoff: zinc_mg, min: 14, stufe: hinweis,
+     grund: "DGE-Referenzwert bei ballaststoffreicher Kost; Kürbiskerne sind der Hebel."}
+
+gruppen:                        # Regeln auf Zutatengruppen (tags in ingredients.yaml)
+  - {tag: selen_quelle, max_pro_tag_g: 10, stufe: fehler,
+     grund: "Max. 2 Paranüsse täglich – Selen hat eine Obergrenze."}
+  - {tag: omega3_ala, min_pro_tag_g: 10, stufe: fehler,
+     grund: "1 EL geschrotete Leinsamen täglich deckt Omega-3 (ALA)."}
+  - {tag: rohes_obst, min_pro_tag_g: 100, stufe: fehler,
+     grund: "Rohes Obst täglich (TK-Beeren) – deckt Vitamin C."}
+  - {tag: vitamin_a_gemuese, min_pro_tag_g: 60, stufe: fehler,
+     grund: "Karotte/Paprika (bzw. Spinat) im TK-Gemüse deckt Vitamin A – mit Öl essen."}
+  - {tag: tk_gemuese, min_pro_tag_g: 200, stufe: fehler,
+     grund: "Gemüse täglich; bei Völlegefühl von 300 auf 200 g runter, nicht weniger."}
+  - {tag: huelsenfrucht, min_pro_woche_g: 500, stufe: hinweis,
+     grund: "Hülsenfrüchte sind Ballaststoff-, Eisen- und Proteinbasis; Sorte wöchentlich wechseln."}
+  - {tag: mariniert_salzig, max_pro_woche_g: 480, stufe: fehler,
+     grund: "Gyros max. 4× pro Woche wegen Salz aus der Marinade."}
+
+alltag:
+  max_aktive_minuten_pro_tag: 20
+  nur_zero_prep: true           # nichts schneiden, nichts vorbereiten
+
+# Nicht bestellt (hast du selbst), aber der Agent erinnert daran und plant drumherum
+gewohnheiten:
+  - "Kreatin 5 g täglich (in den Abendsnack – Konstanz zählt)"
+  - "Vitamin D zum Frühstück, nie nüchtern"
+  - "Omega-3-Kapseln mit EPA/DHA – sonst 1× pro Woche Makrele/Sardinen einplanen"
+  - "Konsequent Jodsalz"
+  - "Kaffee/Tee mit ~1 h Abstand zu Oatmeal und Nudeln (Eisenaufnahme)"
+  - "Koffein ~200 mg ca. 45 Min vor Pickup/Spiel"
+  - "Blutwerte (Ferritin, Vitamin D, B12) einmal bestimmen lassen"
+
+# Kalorien-Regel: wichtiger als jede Zahl oben. Die Waage ist die Messung.
+kalorien_regel:
+  zeitraum_wochen: 4
+  max_zunahme_kg_pro_monat: 0.5   # darüber: Überschuss zu groß
+  min_zunahme_kg_pro_monat: 0.1   # darunter: Kalorien-Stufen anwenden
+
+# Stellschrauben – immer in dieser Reihenfolge, jede Stufe 2 Wochen testen
+stellschrauben:
+  zu_voll:
+    - "TK-Gemüse 300 → 200 g"
+    - "Hülsenfrüchte nur jeden 2. Tag"
+    - "Haferflocken 100 → 80 g, dafür 1 EL Öl mehr"
+    - "NICHT zuerst die Nudeln kürzen – günstigster Kalorienträger"
+  gewicht_steigt_nicht:
+    - "Stufe 1: Öl von 2 auf 4 EL/Tag (+180 kcal), Erdnussmus auf 40 g (+120 kcal)"
+    - "Stufe 2: Shake aus 300 ml Vollmilch + 60 g Haferflocken + 1 Banane + 30 g Erdnussmus (~700 kcal)"
+    - "Stufe 3: Nudeln 200 → 250 g, Reis 100 → 150 g"
+    - "NICHT mehr Protein, Gemüse oder Hülsenfrüchte – sättigen stark, kein Zusatzreiz"
+  gewicht_steigt_zu_schnell:
+    - "Öl runter"
+    - "Müsli runter"
