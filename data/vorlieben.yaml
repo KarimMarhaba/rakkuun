@@ -2,7 +2,7 @@
 # Vorlieben werden immer umgesetzt, SOLANGE die Grundregeln (regeln.yaml) eingehalten bleiben.
 
 jeden_tag_gleich: true   # jeder Wochentag identisch; Abwechslung nur von Woche zu Woche
-abneigungen: [proteinpulver]  # Zutat-IDs, die nie im Plan landen dürfen
+abneigungen: [proteinpulver, gouda]  # Zutat-IDs, die nie im Plan landen dürfen
 tausch: {}               # dauerhafte 1:1-Ersetzungen, z. B. {tk_brokkoli: tk_spinat}
 notizen:
   - "Ohne Proteinpulver planen (hat welches zu Hause, will aber nicht darauf bauen)."
@@ -14,6 +14,7 @@ notizen:
   - "Gewürzte TK-Hähnchenbrust ist okay."
   - "Erbsen & Möhren immer mitbestellen (Vorrat zu Hause unsicher)."
   - "Frühstück: Spiegeleier mit Vollkornbrot und Banane statt Oatmeal (Spiegelei ja, gekochte Eier nein)."
+  - "Mag keinen Käse. Calcium zum Frühstück stattdessen über ein Glas Milch (200 ml)."
   - "Mittags immer 250 g Nudeln (halbe Packung, kein Abwiegen)."
   - "Immer Kichererbsen, keine anderen Hülsenfrüchte."
   - "Abends einen ganzen Becher Skyr (400 g)."
