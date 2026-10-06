@@ -112,6 +112,35 @@ def schedule_from_last_delivery(delivered: date | None, today: date, cover: int 
     """
     if delivered and delivered + timedelta(days=cover - 1) > today:
         delivery = delivered + timedelta(days=cover - 1)
-        return delivery, delivery - timedelta(days=lead), True
+        if delivery.weekday() == 6:              # MyTime liefert sonntags nicht -> Samstag
+            delivery -= timedelta(days=1)
+        return delivery, max(delivery - timedelta(days=lead), today), True
     delivery = today + timedelta(days=1)
+    if delivery.weekday() == 6:
+        delivery += timedelta(days=1)
     return delivery, today, False
+
+
+def usage_start(data_dir, delivered: date | None) -> date | None:
+    """Ab wann der Vorrat tatsächlich genutzt wird: der spätere von Liefertermin laut MyTime und
+    dem vom Nutzer genannten Tag (data/lieferung.yaml), z. B. wenn ein Teil später ankam."""
+    path = Path(data_dir) / "lieferung.yaml"
+    manual = load_yaml(path).get("verbrauch_ab") if path.exists() else None
+    manual = date.fromisoformat(str(manual)) if manual else None
+    candidates = [d for d in (delivered, manual) if d]
+    return max(candidates) if candidates else None
+
+
+def stock_after_delivery(catalog: Catalog, delivered: date) -> Stock:
+    """Bestand am Liefertag: was für die Woche ab `delivered` bestellt wurde – in ganzen Packungen.
+    Lange haltbare Großpackungen (z. B. Kakao, Agavendicksaft) reichen so über mehrere Wochen und
+    werden nicht jede Woche neu gekauft. Vorräte, die der Nutzer selbst hat, zählen nicht mit."""
+    from .shopping import build_shopping_plan
+    c = catalog_for_delivery(catalog, Stock(delivered, {}), delivered)
+    week = generate_week(c, delivered.isocalendar().week)
+    grams: dict[str, float] = {}
+    for delivery in build_shopping_plan(c, week).deliveries:
+        for line in delivery.lines + delivery.filler:
+            grams[line.ingredient_id] = grams.get(line.ingredient_id, 0.0) + \
+                line.packages * catalog.ingredients[line.ingredient_id].package_g
+    return Stock(delivered, grams)

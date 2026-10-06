@@ -194,7 +194,7 @@ def cmd_warenkorb(args) -> int:
 def cmd_auto(args) -> int:
     """Ohne Eingaben: Die letzte Lieferung deckt 7 Tage. Die nächste soll am Tag davor kommen,
     der Warenkorb wird `vorlauf_tage` vorher befüllt. Gibt NAECHSTER_LAUF für den Termin aus."""
-    from .vorrat import Stock, catalog_for_delivery, daily_use, schedule_from_last_delivery
+    from .vorrat import Stock, catalog_for_delivery, daily_use, schedule_from_last_delivery, stock_after_delivery, usage_start
     from .warenkorb import MyTimeShop, fill_cart, render_result
     catalog = load_catalog(args.data)
     today = date.today()
@@ -203,10 +203,9 @@ def cmd_auto(args) -> int:
     with MyTimeShop() as shop:
         shop.login()
         last = shop.last_order()
-    delivered = last["lieferung"] if last and last["lieferung"] else None
+    delivered = usage_start(args.data, last["lieferung"] if last and last["lieferung"] else None)
     delivery, fill_on, has_stock = schedule_from_last_delivery(delivered, today, cover, lead)
-    stock = (Stock(delivered, {i: g * cover for i, g in daily_use(catalog).items()}) if has_stock
-             else Stock(today, {}))
+    stock = stock_after_delivery(catalog, delivered) if has_stock else Stock(today, {})
     if last:
         print(f"Letzte Bestellung {last['nummer']} vom {_datum(last['bestellt'])}, "
               f"Lieferung {_datum(delivered) if delivered else 'unbekannt'} ({last['status']})")
@@ -226,6 +225,15 @@ def cmd_auto(args) -> int:
     # Nach der Bestellung rechnet der nächste Lauf ab dem echten Liefertermin weiter
     print(f"NAECHSTER_LAUF={(delivery + timedelta(days=cover - 1 - lead)).isoformat()}")
     return 1 if result.failed else 0
+
+
+def cmd_verbrauch_ab(args) -> int:
+    """Nutzer sagt, ab wann die letzte Lieferung wirklich genutzt wird (z. B. Teil kam später)."""
+    datum = date.fromisoformat(args.datum)
+    save_yaml(args.data / "lieferung.yaml", {"verbrauch_ab": datum.isoformat()},
+              "# Ab diesem Tag wird die letzte Lieferung genutzt (überschreibt einen früheren Liefertermin aus dem Konto)\n")
+    print(f"Verbrauch ab {_datum(datum)} gespeichert.")
+    return 0
 
 
 def main() -> None:
@@ -265,6 +273,10 @@ def main() -> None:
     p.add_argument("--kw", type=int)
     p.add_argument("--out", type=Path, default=Path("build/plan.html"))
     p.set_defaults(func=cmd_seite)
+
+    p = sub.add_parser("verbrauch-ab", help="Tag setzen, ab dem die letzte Lieferung genutzt wird")
+    p.add_argument("datum", help="JJJJ-MM-TT")
+    p.set_defaults(func=cmd_verbrauch_ab)
 
     p = sub.add_parser("auto", help="nächsten Termin aus der letzten Lieferung berechnen, ggf. Warenkorb befüllen")
     p.set_defaults(func=cmd_auto)
