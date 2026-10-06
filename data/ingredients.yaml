@@ -417,10 +417,10 @@ vollkornbrot:
 
 skyr:
   name: Skyr natur
-  mytime_query: Skyr natur
-  mytime: {sku: '4503062042', name: "Jeden Tag Skyr Natur", weight: "500 g", step: 1, status: ok}
-  package_g: 500
-  price_eur: 1.59
+  mytime_query: Minus L Skyr natur
+  mytime: {sku: '4503062245', name: "Minus L Skyr natur", weight: "400 g", step: 1, status: ok, hinweis: "Jeden Tag Skyr ist bei MyTime nicht mehr verfügbar (Okt. 2026)"}
+  package_g: 400
+  price_eur: 2.09
   shelf_life_days: 21
   per_100g: {kcal: 65, protein: 11.0, carbs: 4.4, fat: 0.2, fiber: 0.0, calcium_mg: 100, iron_mg: 0.1, magnesium_mg: 11, zinc_mg: 0.5,
              vitamin_a_ug: 3, vitamin_c_mg: 0, vitamin_d_ug: 0, vitamin_b12_ug: 0.5, folat_ug: 15, selen_ug: 3, kalium_mg: 150}

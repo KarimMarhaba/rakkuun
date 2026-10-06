@@ -115,3 +115,18 @@ def schedule_from_last_delivery(delivered: date | None, today: date, cover: int 
         return delivery, delivery - timedelta(days=lead), True
     delivery = today + timedelta(days=1)
     return delivery, today, False
+
+
+def stock_after_delivery(catalog: Catalog, delivered: date) -> Stock:
+    """Bestand am Liefertag: was für die Woche ab `delivered` bestellt wurde – in ganzen Packungen.
+    Lange haltbare Großpackungen (z. B. Kakao, Agavendicksaft) reichen so über mehrere Wochen und
+    werden nicht jede Woche neu gekauft. Vorräte, die der Nutzer selbst hat, zählen nicht mit."""
+    from .shopping import build_shopping_plan
+    c = catalog_for_delivery(catalog, Stock(delivered, {}), delivered)
+    week = generate_week(c, delivered.isocalendar().week)
+    grams: dict[str, float] = {}
+    for delivery in build_shopping_plan(c, week).deliveries:
+        for line in delivery.lines + delivery.filler:
+            grams[line.ingredient_id] = grams.get(line.ingredient_id, 0.0) + \
+                line.packages * catalog.ingredients[line.ingredient_id].package_g
+    return Stock(delivered, grams)

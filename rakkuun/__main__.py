@@ -194,7 +194,7 @@ def cmd_warenkorb(args) -> int:
 def cmd_auto(args) -> int:
     """Ohne Eingaben: Die letzte Lieferung deckt 7 Tage. Die nächste soll am Tag davor kommen,
     der Warenkorb wird `vorlauf_tage` vorher befüllt. Gibt NAECHSTER_LAUF für den Termin aus."""
-    from .vorrat import Stock, catalog_for_delivery, daily_use, schedule_from_last_delivery
+    from .vorrat import Stock, catalog_for_delivery, daily_use, schedule_from_last_delivery, stock_after_delivery
     from .warenkorb import MyTimeShop, fill_cart, render_result
     catalog = load_catalog(args.data)
     today = date.today()
@@ -205,8 +205,7 @@ def cmd_auto(args) -> int:
         last = shop.last_order()
     delivered = last["lieferung"] if last and last["lieferung"] else None
     delivery, fill_on, has_stock = schedule_from_last_delivery(delivered, today, cover, lead)
-    stock = (Stock(delivered, {i: g * cover for i, g in daily_use(catalog).items()}) if has_stock
-             else Stock(today, {}))
+    stock = stock_after_delivery(catalog, delivered) if has_stock else Stock(today, {})
     if last:
         print(f"Letzte Bestellung {last['nummer']} vom {_datum(last['bestellt'])}, "
               f"Lieferung {_datum(delivered) if delivered else 'unbekannt'} ({last['status']})")

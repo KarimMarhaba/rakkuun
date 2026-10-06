@@ -197,7 +197,7 @@ def test_packages_rounded_up_and_pantry_carried_over():
     shopping = build_shopping_plan(catalog, generate_week(catalog, 0))
     lines = {l.ingredient_id: l for d in shopping.deliveries for l in d.lines}
     assert lines["skyr"].grams_needed == 2100
-    assert lines["skyr"].packages == 5
+    assert lines["skyr"].packages == 6          # 400-g-Becher
     # 1 kg Reis gekauft, 700 g verbraucht -> Rest landet im Vorrat
     assert shopping.pantry_after["basmatireis"] == 300
     # Frisches (Skyr, 21 Tage) wird nicht als Vorrat fortgeschrieben
@@ -385,7 +385,7 @@ def test_fill_cart_adds_only_what_is_missing(monkeypatch):
     fake = FakeShop({skyr: 2, "999": 1})          # 2 Skyr liegen schon drin, plus ein fremder Artikel
     monkeypatch.setattr(wk, "MyTimeShop", fake)
     result = wk.fill_cart(catalog, shopping)
-    assert (skyr, 3) in fake.calls               # nur die fehlenden 3 von 5
+    assert (skyr, 4) in fake.calls               # nur die fehlenden 4 von 6
     assert fake.items["999"] == 1                # fremde Artikel bleiben unberührt
     assert not result.failed
     # zweiter Lauf legt nichts mehr hinein
@@ -459,3 +459,16 @@ def test_schedule_from_last_delivery():
     # letzte Lieferung lange her -> sofort befüllen, Lieferung morgen
     assert plan(date(2026, 7, 16), date(2026, 10, 1)) == (date(2026, 10, 2), date(2026, 10, 1), False)
     assert plan(None, date(2026, 10, 1)) == (date(2026, 10, 2), date(2026, 10, 1), False)
+
+
+def test_large_packs_last_several_weeks():
+    """Kakao (250 g) und Agavendicksaft (500 g) reichen mehrere Wochen und werden nicht wöchentlich nachgekauft."""
+    from datetime import date
+    from rakkuun.vorrat import catalog_for_delivery, stock_after_delivery
+    catalog = load_catalog()
+    delivered, nxt = date(2026, 10, 2), date(2026, 10, 8)
+    c = catalog_for_delivery(catalog, stock_after_delivery(catalog, delivered), nxt)
+    week = generate_week(c, nxt.isocalendar().week)
+    ordered = {l.ingredient_id for d in build_shopping_plan(c, week).deliveries for l in d.lines}
+    assert "backkakao" not in ordered and "agavendicksaft" not in ordered
+    assert "skyr" in ordered and "banane" in ordered
