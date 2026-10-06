@@ -410,8 +410,8 @@ vollkornbrot:
   mytime: {sku: '4503110519', name: "Emsland Ahaus Vollkornbrot", weight: "500 g", step: 1, status: ok}
   package_g: 500
   price_eur: 1.49
-  shelf_life_days: 6
-  kaufregel: Kann eingefroren und scheibenweise getoastet werden.
+  shelf_life_days: 30
+  kaufregel: Abgepacktes Schnittbrot; angebrochene Packung einfrieren und scheibenweise toasten.
   per_100g: {kcal: 220, protein: 7.0, carbs: 40.0, fat: 1.2, fiber: 8.0, calcium_mg: 50, iron_mg: 2.5, magnesium_mg: 60, zinc_mg: 2.0,
              vitamin_a_ug: 0, vitamin_c_mg: 0, vitamin_d_ug: 0, vitamin_b12_ug: 0, folat_ug: 30, selen_ug: 3, kalium_mg: 230}
 

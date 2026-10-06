@@ -81,7 +81,7 @@ def test_light_days_use_smaller_portions(data):
     catalog = varied_week(data)
     days = {d.weekday: d for d in generate_week(catalog, 0).days}
     assert day_grams(catalog, days["Do"])["nudeln"] == 150
-    assert day_grams(catalog, days["Mo"])["nudeln"] == 200
+    assert day_grams(catalog, days["Mo"])["nudeln"] == 250
     assert day_nutrients(catalog, days["Do"])["kcal"] < day_nutrients(catalog, days["Mo"])["kcal"]
 
 
@@ -94,8 +94,15 @@ def test_meat_rotation_puts_gyros_on_game_days_and_limits_it(data):
     assert all("rote_bete_shot" in d.meals for d in week.days if d.game_day)
 
 
-def test_legume_rotates_weekly():
+def test_default_plan_always_uses_chickpeas():
     catalog = load_catalog()
+    assert {generate_week(catalog, kw).legume for kw in range(4)} == {"kichererbsen"}
+
+
+def test_legume_rotates_weekly(data):
+    edit(data, "wochenvorlage.yaml",
+         huelsenfrucht_rotation=["kichererbsen", "kidneybohnen", "weisse_bohnen", "linsen"])
+    catalog = load_catalog(data)
     legumes = {generate_week(catalog, kw).legume for kw in range(4)}
     assert legumes == {"kichererbsen", "kidneybohnen", "weisse_bohnen", "linsen"}
     week = generate_week(catalog, 1)
@@ -145,7 +152,7 @@ def test_too_much_gyros_breaks_salt_rule(data):
 
 
 def test_protein_minimum_scales_with_logged_weight(data):
-    edit(data, "gewicht.yaml", **{"2026-09-01": 90.0})
+    edit(data, "gewicht.yaml", **{"2026-09-01": 100.0})
     assert any(f.text.startswith("Protein") for f in errors(load_catalog(data)))
 
 
@@ -196,10 +203,10 @@ def test_packages_rounded_up_and_pantry_carried_over():
     catalog = load_catalog()
     shopping = build_shopping_plan(catalog, generate_week(catalog, 0))
     lines = {l.ingredient_id: l for d in shopping.deliveries for l in d.lines}
-    assert lines["skyr"].grams_needed == 2100
-    assert lines["skyr"].packages == 6          # 400-g-Becher
-    # 1 kg Reis gekauft, 700 g verbraucht -> Rest landet im Vorrat
-    assert shopping.pantry_after["basmatireis"] == 300
+    assert lines["skyr"].grams_needed == 2800
+    assert lines["skyr"].packages == 7          # ein 400-g-Becher pro Tag
+    # 1 kg Reis gekauft, 525 g verbraucht -> Rest landet im Vorrat
+    assert shopping.pantry_after["basmatireis"] == 475
     # Frisches (Skyr, 21 Tage) wird nicht als Vorrat fortgeschrieben
     assert "skyr" not in shopping.pantry_after
 
@@ -321,12 +328,12 @@ def test_items_at_home_are_not_ordered():
     ordered = {l.ingredient_id for d in shopping.deliveries for l in d.lines + d.filler}
     assert not ordered & {"olivenoel", "passierte_tomaten"}
     assert "tk_gemuese_mix" in ordered
-    assert shopping.from_home["olivenoel"] == 7 * 30
+    assert shopping.from_home["olivenoel"] == 7 * 40
 
 
 def test_selenium_upper_limit_is_enforced(data):
     recipes = yaml.safe_load((data / "recipes.yaml").read_text(encoding="utf-8"))
-    recipes["oatmeal"]["ingredients"]["paranuesse"] = 20
+    recipes["spiegelei_brot"]["ingredients"]["paranuesse"] = 20
     (data / "recipes.yaml").write_text(yaml.safe_dump(recipes, allow_unicode=True), encoding="utf-8")
     assert any(f.text.startswith("Selen") and ">" in f.text for f in errors(load_catalog(data)))
 
@@ -385,7 +392,7 @@ def test_fill_cart_adds_only_what_is_missing(monkeypatch):
     fake = FakeShop({skyr: 2, "999": 1})          # 2 Skyr liegen schon drin, plus ein fremder Artikel
     monkeypatch.setattr(wk, "MyTimeShop", fake)
     result = wk.fill_cart(catalog, shopping)
-    assert (skyr, 4) in fake.calls               # nur die fehlenden 4 von 6
+    assert (skyr, 5) in fake.calls               # nur die fehlenden 5 von 7
     assert fake.items["999"] == 1                # fremde Artikel bleiben unberührt
     assert not result.failed
     # zweiter Lauf legt nichts mehr hinein
@@ -472,3 +479,15 @@ def test_large_packs_last_several_weeks():
     ordered = {l.ingredient_id for d in build_shopping_plan(c, week).deliveries for l in d.lines}
     assert "backkakao" not in ordered and "agavendicksaft" not in ordered
     assert "skyr" in ordered and "banane" in ordered
+
+
+def test_no_sunday_delivery_and_manual_usage_start(data):
+    from datetime import date
+    from rakkuun.vorrat import schedule_from_last_delivery as plan, usage_start
+    # Verbrauch ab Mo 05.10. -> letzter Tag So 11.10. -> Lieferung Sa 10.10., Warenkorb Do 08.10.
+    assert plan(date(2026, 10, 5), date(2026, 10, 6)) == (date(2026, 10, 10), date(2026, 10, 8), True)
+    (data / "lieferung.yaml").unlink(missing_ok=True)
+    assert usage_start(data, date(2026, 10, 2)) == date(2026, 10, 2)
+    (data / "lieferung.yaml").write_text("verbrauch_ab: 2026-10-05\n", encoding="utf-8")
+    assert usage_start(data, date(2026, 10, 2)) == date(2026, 10, 5)
+    assert usage_start(data, date(2026, 10, 9)) == date(2026, 10, 9)   # neuere Lieferung gewinnt

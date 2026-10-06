@@ -105,6 +105,8 @@ Fragen einzeln oder in kleinen Gruppen stellen und Antworten zusammenfassen.
 - `python -m rakkuun vorrat` zeigt Reichweite und den nächsten Liefertermin; `warenkorb` befüllt
   automatisch für diesen Termin (7 Tage ab Liefertag, Vorrat am Liefertag abgezogen).
 - Danach Vorrat committen, damit die nächste Session den Stand kennt.
+- Kam eine Lieferung (oder ein Teil davon) später als im Konto steht: `python -m rakkuun verbrauch-ab JJJJ-MM-TT`
+  und committen – der tägliche Termin rechnet dann ab diesem Tag. Sonntags wird nie geliefert.
 - Automatischer Termin: `python -m rakkuun auto` liest die letzte Lieferung aus dem MyTime-Konto
   (Liefertermin), rechnet 7 Tage Reichweite und befüllt den Warenkorb 2 Tage vor dem nächsten Termin.
   Kein Eintippen nötig; die Ausgabe `NAECHSTER_LAUF=JJJJ-MM-TT` ist der Tag für den nächsten Termin.
