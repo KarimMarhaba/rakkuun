@@ -10,10 +10,10 @@ spiegelei_brot:
   active_minutes: 6
   zero_prep: true
   anleitung: >-
-    1 EL Öl in die Pfanne, 3 Eier aufschlagen, bei mittlerer Hitze ca. 4 Min braten (Deckel drauf,
-    dann wird das Eigelb schneller fest), salzen. Dazu 4 Scheiben Vollkornbrot (aus dem Tiefkühler
+    1 EL Öl in die Pfanne, 4 Eier aufschlagen, bei mittlerer Hitze ca. 4 Min braten (Deckel drauf,
+    dann wird das Eigelb schneller fest), salzen. Dazu 3 Scheiben Vollkornbrot (aus dem Tiefkühler
     direkt in den Toaster), eine Banane und ein Glas Milch (200 ml, für Calcium).
-  ingredients: {eier: 165, olivenoel: 10, vollkornbrot: 200, h_vollmilch: 200, banane: 120}
+  ingredients: {eier: 220, olivenoel: 10, vollkornbrot: 150, h_vollmilch: 200, banane: 120}
 
 oatmeal:
   name: Schoko-Oatmeal mit Banane, Erdnussmus und Zimt

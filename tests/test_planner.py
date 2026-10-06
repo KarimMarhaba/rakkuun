@@ -152,7 +152,7 @@ def test_too_much_gyros_breaks_salt_rule(data):
 
 
 def test_protein_minimum_scales_with_logged_weight(data):
-    edit(data, "gewicht.yaml", **{"2026-09-01": 100.0})
+    edit(data, "gewicht.yaml", **{"2026-09-01": 110.0})
     assert any(f.text.startswith("Protein") for f in errors(load_catalog(data)))
 
 
